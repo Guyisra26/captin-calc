@@ -92,7 +92,10 @@ function App() {
   };
 
   const handleCreateRoom = useCallback(() => {
-    const code = crypto.randomUUID().slice(0, 6).toUpperCase();
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const code = Array.from(crypto.getRandomValues(new Uint8Array(6)))
+      .map(b => chars[b % chars.length])
+      .join('');
     setRoomCode(code);
     setMode('host');
   }, []);
