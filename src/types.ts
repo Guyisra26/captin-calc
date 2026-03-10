@@ -4,10 +4,10 @@ export interface Player {
   balance: number;
 }
 
-export type DoublingProposer = 'captain' | 'teamB';
+export type DoublingProposer = 'captain' | 'teamB' | 'either';
 
 export interface RoundEvent {
-  type: 'doubling' | 'removal' | 'resolution';
+  type: 'doubling' | 'pivot' | 'removal' | 'resolution';
   timestamp: number;
   description: string;
 }
@@ -24,6 +24,7 @@ export interface RoundState {
   nextDoublingProposer: DoublingProposer; // who can propose the NEXT doubling
   lastDoublingByTeamB: boolean; // was the last doubling proposed by Team B? (enables removal)
   canRemove: boolean; // Captain can remove players right now
+  canPivot: boolean; // Opposing side can pivot (accept + counter-double)
   events: RoundEvent[];
   isComplete: boolean;
 }
@@ -35,6 +36,7 @@ export interface RoundSummary {
   representativeId: string;
   representativeName: string;
   winner: 'captain' | 'teamB';
+  winType: 'normal' | 'mars' | 'turkish';
   finalPerPlayerStake: number;
   doublings: number;
   removals: string[]; // removed player names
@@ -46,6 +48,7 @@ export interface GameState {
   players: Player[];
   captainId: string;
   teamBOrder: string[]; // player IDs in Team B order
+  lateJoiners: string[]; // players added mid-game (always last in rotation)
   currentRound: RoundState | null;
   roundHistory: RoundSummary[];
   screen: 'setup' | 'game';
@@ -53,11 +56,15 @@ export interface GameState {
 
 // Actions
 export type GameAction =
-  | { type: 'START_GAME'; players: { id: string; name: string }[]; captainId: string; teamBOrder: string[] }
+  | { type: 'START_GAME'; players: { id: string; name: string }[]; captainId: string; teamBOrder: string[]; initialBalances?: Record<string, number> }
   | { type: 'START_ROUND' }
   | { type: 'DOUBLE'; proposer: DoublingProposer }
+  | { type: 'INITIAL_DOUBLE' }
   | { type: 'REMOVE_PLAYERS'; playerIds: string[] }
   | { type: 'SKIP_REMOVAL' }
-  | { type: 'RESOLVE_ROUND'; winner: 'captain' | 'teamB' }
-  | { type: 'RESET_GAME' }
-  | { type: 'LOAD_STATE'; state: GameState };
+  | { type: 'PIVOT'; pivoter: 'captain' | 'teamB' }
+  | { type: 'RESOLVE_ROUND'; winner: 'captain' | 'teamB'; winType: 'normal' | 'mars' | 'turkish' }
+  | { type: 'ADD_PLAYER'; name: string }
+  | { type: 'RESET_GAME' };
+
+export type AppMode = 'local' | 'host' | 'spectator';
