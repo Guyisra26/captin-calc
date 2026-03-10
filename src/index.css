@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --color-captain: #f59e0b;
+  --color-teamb: #3b82f6;
+  --color-positive: #22c55e;
+  --color-negative: #ef4444;
+  --color-removed: #9ca3af;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* Touch-friendly button base */
+.btn {
+  @apply px-5 py-3 rounded-xl font-semibold text-base transition-all duration-150 active:scale-95 select-none inline-flex items-center justify-center gap-2;
+  min-height: 48px;
+  min-width: 48px;
+}
+
+.btn-captain {
+  @apply bg-amber-500 text-slate-900;
+}
+
+.btn-teamb {
+  @apply bg-blue-500 text-white;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white;
+}
+
+.btn-success {
+  @apply bg-emerald-500 text-white;
+}
+
+.btn-ghost {
+  @apply bg-slate-700 text-slate-200;
+}
+
+.btn-disabled {
+  @apply opacity-40 pointer-events-none;
+}
+
+.card {
+  @apply bg-slate-800 rounded-2xl p-4 border border-slate-700;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
