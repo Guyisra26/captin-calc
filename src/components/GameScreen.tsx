@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { GameState, GameAction } from '../types';
 import Scoreboard from './Scoreboard';
 import RoundPanel from './RoundPanel';
@@ -33,8 +33,23 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
 
   const handleReset = () => {
+    setMenuOpen(false);
     if (window.confirm('Reset game? All data will be lost.')) {
       dispatch({ type: 'RESET_GAME' });
     }
@@ -52,46 +67,69 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
     if (!roomCode) return;
     const url = `${window.location.origin}/?room=${roomCode}`;
     navigator.clipboard.writeText(url);
+    setMenuOpen(false);
+  };
+
+  const menuItemStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.6rem',
+    width: '100%',
+    padding: '0.75rem 1rem',
+    background: 'none',
+    border: 'none',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    color: 'var(--cream)',
+    fontFamily: "'Cinzel', serif",
+    fontSize: '0.85rem',
+    letterSpacing: '0.04em',
+    cursor: 'pointer',
+    textAlign: 'left',
+    transition: 'background 0.1s',
   };
 
   return (
     <div className="h-full flex flex-col" style={{ background: 'var(--wood-darkest)' }}>
 
-      {/* Triangle strip — top of board */}
+      {/* Triangle strip — top */}
       <BoardPoints />
 
       {/* Top Bar */}
       <div
-        className="flex items-center justify-between px-4 py-2 shrink-0"
+        className="flex items-center justify-between px-3 py-2 shrink-0"
         style={{
           background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
           borderBottom: '2px solid var(--gold-dark)',
+          position: 'relative',
         }}
       >
-        <div className="flex items-center gap-3">
+        {/* Left: title + live badges */}
+        <div className="flex items-center gap-2 min-w-0">
           <h1
             style={{
               fontFamily: "'Cinzel', serif",
               fontWeight: 900,
-              fontSize: '1.2rem',
+              fontSize: '1.1rem',
               color: 'var(--gold-light)',
               letterSpacing: '0.04em',
               textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+              whiteSpace: 'nowrap',
             }}
           >
             ♟ Captain
           </h1>
 
-          {/* Spectator LIVE badge */}
           {mode === 'spectator' && roomCode && (
             <span
-              className="flex items-center gap-1 text-xs px-2 py-0.5 font-medium"
+              className="flex items-center gap-1 px-2 py-0.5"
               style={{
                 background: 'rgba(180,40,40,0.2)',
                 color: '#e07070',
                 border: '1px solid rgba(180,40,40,0.4)',
                 borderRadius: '2px',
                 fontFamily: "'Cinzel', serif",
+                fontSize: '0.7rem',
+                whiteSpace: 'nowrap',
               }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
@@ -99,64 +137,113 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
             </span>
           )}
 
-          {/* Host room code badge */}
           {mode === 'host' && roomCode && (
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 text-xs px-2 py-1 font-medium transition-opacity hover:opacity-80"
+            <span
               style={{
                 background: 'rgba(90,160,50,0.15)',
                 color: '#7ac858',
                 border: '1px solid rgba(90,160,50,0.35)',
                 borderRadius: '2px',
                 fontFamily: "'Cinzel', serif",
+                fontSize: '0.7rem',
+                padding: '0.15rem 0.5rem',
+                whiteSpace: 'nowrap',
               }}
             >
-              ⚑ Room {roomCode} · Copy Link
-            </button>
+              ⚑ {roomCode}
+            </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span style={{ color: 'var(--cream-dark)', fontSize: '0.85rem', opacity: 0.6 }} className="hidden sm:inline">
-            {state.players.length} players
-          </span>
-          {mode !== 'spectator' && (
-            <>
-              <button onClick={() => setShowAddPlayer(v => !v)} className="btn btn-ghost px-3 py-1.5 text-sm">
-                + Player
-              </button>
-              <button
-                onClick={onUndo}
-                className={`btn btn-ghost px-3 py-1.5 text-sm ${!canUndo ? 'btn-disabled' : ''}`}
-              >
-                Undo
-              </button>
-              <button onClick={handleReset} className="btn btn-ghost px-3 py-1.5 text-sm">
-                New Game
-              </button>
-            </>
-          )}
-          {mode === 'local' && (
+        {/* Right: hamburger menu */}
+        {mode !== 'spectator' && (
+          <div ref={menuRef} style={{ position: 'relative' }}>
             <button
-              onClick={onCreateRoom}
-              className="btn px-3 py-1.5 text-sm"
+              onClick={() => setMenuOpen(v => !v)}
               style={{
-                background: 'linear-gradient(135deg, rgba(90,160,50,0.2), rgba(40,100,20,0.2))',
-                color: '#7ac858',
-                border: '1px solid rgba(90,160,50,0.4)',
+                background: menuOpen ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '4px',
+                color: 'var(--gold-light)',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'background 0.1s',
               }}
             >
-              Share
+              {[0,1,2].map(i => (
+                <span key={i} style={{ display: 'block', width: '18px', height: '2px', background: 'var(--gold-light)', borderRadius: '1px', transition: 'all 0.2s',
+                  ...(menuOpen && i === 0 ? { transform: 'translateY(6px) rotate(45deg)' } : {}),
+                  ...(menuOpen && i === 1 ? { opacity: 0, transform: 'scaleX(0)' } : {}),
+                  ...(menuOpen && i === 2 ? { transform: 'translateY(-6px) rotate(-45deg)' } : {}),
+                }} />
+              ))}
             </button>
-          )}
-        </div>
+
+            {/* Dropdown */}
+            {menuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  minWidth: '180px',
+                  background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
+                  border: '1px solid var(--gold-dark)',
+                  borderRadius: '4px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                  zIndex: 100,
+                  overflow: 'hidden',
+                }}
+              >
+                {mode === 'local' && (
+                  <button
+                    onClick={() => { onCreateRoom(); setMenuOpen(false); }}
+                    style={{ ...menuItemStyle, color: '#7ac858', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    ⚑ Share / Create Room
+                  </button>
+                )}
+                {mode === 'host' && roomCode && (
+                  <button onClick={handleCopyLink} style={{ ...menuItemStyle, color: '#7ac858' }}>
+                    ⎘ Copy Spectator Link
+                  </button>
+                )}
+                <button
+                  onClick={() => { setShowAddPlayer(v => !v); setMenuOpen(false); }}
+                  style={menuItemStyle}
+                >
+                  + Add Player
+                </button>
+                <button
+                  onClick={() => { onUndo(); setMenuOpen(false); }}
+                  style={{ ...menuItemStyle, opacity: canUndo ? 1 : 0.35, pointerEvents: canUndo ? 'auto' : 'none' }}
+                >
+                  ↩ Undo
+                </button>
+                <button
+                  onClick={handleReset}
+                  style={{ ...menuItemStyle, color: '#e07070', borderBottom: 'none' }}
+                >
+                  ✕ New Game
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Add Player Inline */}
       {showAddPlayer && mode !== 'spectator' && (
         <div
-          className="px-4 py-2 flex items-center gap-2"
+          className="px-3 py-2 flex items-center gap-2"
           style={{ background: 'var(--wood-mid)', borderBottom: '1px solid var(--gold-dark)' }}
         >
           <input
@@ -187,7 +274,6 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
       {/* Main Layout */}
       <div className="flex-1 overflow-auto p-3" style={{ background: 'var(--wood-dark)' }}>
         <div className="h-full flex flex-col lg:flex-row gap-3">
-          {/* Left Column */}
           <div className="lg:w-[300px] shrink-0 flex flex-col gap-3">
             <Scoreboard
               players={state.players}
@@ -197,8 +283,6 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
             />
             <RoundHistory history={state.roundHistory} />
           </div>
-
-          {/* Right Column */}
           <div className="flex-1 flex flex-col gap-3">
             <RoundPanel state={state} dispatch={dispatch} isReadOnly={mode === 'spectator'} />
             {round && (
