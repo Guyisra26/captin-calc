@@ -1,21 +1,27 @@
 import type { Player, RoundSummary } from './types';
 
-const DB_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL as string;
+const DB_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL as string | undefined;
 
 function patch(path: string, data: object): void {
+  if (!DB_URL) return;
   fetch(`${DB_URL}${path}.json`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-  }).catch(err => console.error('Firebase log error:', err));
+  })
+    .then(res => { if (!res.ok) console.error(`Firebase log error: ${res.status} ${res.statusText}`); })
+    .catch(err => console.error('Firebase log error:', err));
 }
 
 function put(path: string, data: object): void {
+  if (!DB_URL) return;
   fetch(`${DB_URL}${path}.json`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-  }).catch(err => console.error('Firebase log error:', err));
+  })
+    .then(res => { if (!res.ok) console.error(`Firebase log error: ${res.status} ${res.statusText}`); })
+    .catch(err => console.error('Firebase log error:', err));
 }
 
 export function logGameStart(
