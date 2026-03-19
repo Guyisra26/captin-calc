@@ -29,10 +29,12 @@ export function logGameStart(
   players: Player[],
   roomCode: string | null
 ): void {
+  const now = Date.now();
   put(`/logs/${gameId}`, {
     gameId,
     roomCode: roomCode ?? null,
-    createdAt: Date.now(),
+    createdAt: now,
+    createdAtStr: new Date(now).toISOString(),
     status: 'active',
     endedAt: null,
     players: players.map(p => ({ id: p.id, name: p.name })),
@@ -55,12 +57,15 @@ export function logRoundComplete(gameId: string, round: RoundSummary): void {
     finalPerPlayerStake: round.finalPerPlayerStake,
     balanceChanges: round.balanceChanges,
     completedAt: Date.now(),
+    completedAtStr: new Date().toISOString(),
   });
 }
 
 export function logGameEnded(gameId: string): void {
+  const now = Date.now();
   patch(`/logs/${gameId}`, {
     status: 'ended',
-    endedAt: Date.now(),
+    endedAt: now,
+    endedAtStr: new Date(now).toISOString(),
   });
 }
