@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -6,10 +6,10 @@
   --wood-dark: #1a0800;
   --wood-mid: #2d1200;
   --wood-grain: #3a1800;
-  --felt: #420918;
-  --felt-mid: #5a0d20;
-  --felt-light: #6e1228;
-  --felt-border: #8a1a34;
+  --felt: #0d3320;
+  --felt-mid: #1a4a2e;
+  --felt-light: #245c38;
+  --felt-border: #2d7a48;
   --gold: #c9932c;
   --gold-dark: #7a5a14;
   --gold-light: #e8c264;
@@ -40,7 +40,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Crimson Pro', Georgia, serif;
+  font-family: 'Lora', Georgia, serif;
   color: var(--cream);
   background-color: var(--wood-darkest);
   background-image:
@@ -69,7 +69,7 @@ body {
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   border-radius: 6px;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Cinzel', Georgia, serif;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 0.02em;
@@ -145,8 +145,8 @@ body {
 .card {
   background: var(--felt);
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(110,18,40,0.6) 0%, transparent 70%),
-    radial-gradient(ellipse at 50% 100%, rgba(30,4,12,0.4) 0%, transparent 70%);
+    radial-gradient(ellipse at 50% 0%, rgba(18,80,40,0.6) 0%, transparent 70%),
+    radial-gradient(ellipse at 50% 100%, rgba(4,20,10,0.4) 0%, transparent 70%);
   border: 1px solid var(--felt-border);
   border-radius: 4px;
   padding: 1rem;
@@ -190,7 +190,7 @@ body {
   border-radius: 4px;
   padding: 0.75rem 1rem;
   color: var(--cream);
-  font-family: 'Crimson Pro', Georgia, serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 1.1rem;
   outline: none;
   transition: border-color 0.15s;
@@ -210,7 +210,7 @@ body {
 /* ─── Badge styles ─── */
 .badge-captain {
   font-size: 0.7rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cinzel', serif;
   background: rgba(201,147,44,0.2);
   color: var(--gold-light);
   border: 1px solid rgba(201,147,44,0.4);
@@ -222,7 +222,7 @@ body {
 
 .badge-teamb {
   font-size: 0.7rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cinzel', serif;
   background: rgba(242,228,196,0.1);
   color: var(--cream-dark);
   border: 1px solid rgba(242,228,196,0.2);
@@ -233,7 +233,7 @@ body {
 
 .badge-out {
   font-size: 0.7rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cinzel', serif;
   background: rgba(122,106,90,0.2);
   color: var(--color-removed);
   border: 1px solid rgba(122,106,90,0.3);
@@ -253,7 +253,7 @@ body {
   border: 2px solid var(--cream-dark);
   border-radius: 8px;
   color: var(--wood-darkest);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Cinzel', serif;
   font-size: 1.4rem;
   font-weight: 900;
   box-shadow:

@@ -15,17 +15,15 @@ interface GameScreenProps {
   onCreateRoom: () => void;
 }
 
-function BoardPoints({ flip = false, count = 14 }: { flip?: boolean; count?: number }) {
-  const w = 100 / count;
+function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
   return (
-    <svg width="100%" height="20" viewBox={`0 0 100 20`} preserveAspectRatio="none" style={{ display: 'block' }}>
+    <svg width="100%" height="20" viewBox={`0 0 ${count} 1`} preserveAspectRatio="none" style={{ display: 'block', flexShrink: 0 }}>
       {Array.from({ length: count }).map((_, i) => {
-        const x = i * w;
-        const fill = i % 2 === 0 ? '#b8832a' : '#2d0a00';
-        const points = flip
-          ? `${x},0 ${x + w},0 ${x + w / 2},20`
-          : `${x},20 ${x + w},20 ${x + w / 2},0`;
-        return <polygon key={i} points={points} fill={fill} />;
+        const fill = i % 2 === 0 ? '#b8832a' : '#1e0a00';
+        const pts = flip
+          ? `${i},0 ${i + 1},0 ${i + 0.5},1`
+          : `${i},1 ${i + 1},1 ${i + 0.5},0`;
+        return <polygon key={i} points={pts} fill={fill} />;
       })}
     </svg>
   );
@@ -73,7 +71,7 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
         <div className="flex items-center gap-3">
           <h1
             style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Cinzel', serif",
               fontWeight: 900,
               fontSize: '1.2rem',
               color: 'var(--gold-light)',
@@ -93,7 +91,7 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 color: '#e07070',
                 border: '1px solid rgba(180,40,40,0.4)',
                 borderRadius: '2px',
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Cinzel', serif",
               }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
@@ -111,7 +109,7 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 color: '#7ac858',
                 border: '1px solid rgba(90,160,50,0.35)',
                 borderRadius: '2px',
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Cinzel', serif",
               }}
             >
               ⚑ Room {roomCode} · Copy Link

@@ -27,7 +27,7 @@ export default function Scoreboard({ players, captainId, removedBPlayerIds, last
     <div className="card">
       <h3
         style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Cinzel', serif",
           fontSize: '0.7rem',
           fontWeight: 700,
           color: 'var(--gold-dark)',

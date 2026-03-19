@@ -9,17 +9,15 @@ interface PlayerEntry {
   name: string;
 }
 
-function BoardPoints({ flip = false, count = 18 }: { flip?: boolean; count?: number }) {
-  const w = 100 / count;
+function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
   return (
-    <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ display: 'block' }}>
+    <svg width="100%" height="20" viewBox={`0 0 ${count} 1`} preserveAspectRatio="none" style={{ display: 'block', flexShrink: 0 }}>
       {Array.from({ length: count }).map((_, i) => {
-        const x = i * w;
-        const fill = i % 2 === 0 ? '#b8832a' : '#2d0a00';
-        const points = flip
-          ? `${x},0 ${x + w},0 ${x + w / 2},24`
-          : `${x},24 ${x + w},24 ${x + w / 2},0`;
-        return <polygon key={i} points={points} fill={fill} />;
+        const fill = i % 2 === 0 ? '#b8832a' : '#1e0a00';
+        const pts = flip
+          ? `${i},0 ${i + 1},0 ${i + 0.5},1`
+          : `${i},1 ${i + 1},1 ${i + 0.5},0`;
+        return <polygon key={i} points={pts} fill={fill} />;
       })}
     </svg>
   );
@@ -155,7 +153,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           <div className="text-center mb-8">
             <h1
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Cinzel', serif",
                 fontWeight: 900,
                 fontSize: 'clamp(2rem, 6vw, 3rem)',
                 color: 'var(--gold-light)',
@@ -174,7 +172,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {/* ── Step: Names ── */}
           {step === 'names' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '1rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '1rem', letterSpacing: '0.03em' }}>
                 Players
               </h2>
               <div className="space-y-2.5 mb-4">
@@ -223,7 +221,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {/* ── Step: Captain ── */}
           {step === 'captain' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.4rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.4rem', letterSpacing: '0.03em' }}>
                 Choose Captain
               </h2>
               <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.95rem', marginBottom: '1rem' }}>
@@ -249,7 +247,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {/* ── Step: Order ── */}
           {step === 'order' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.25rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.25rem', letterSpacing: '0.03em' }}>
                 Team B Order
               </h2>
               <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.9rem', marginBottom: '0.25rem' }}>
@@ -315,7 +313,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {/* ── Step: Mode ── */}
           {step === 'mode' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.35rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.35rem', letterSpacing: '0.03em' }}>
                 Game Mode
               </h2>
               <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.9rem', marginBottom: '1.25rem' }}>
@@ -346,7 +344,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {/* ── Step: Balances ── */}
           {step === 'balances' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.25rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.25rem', letterSpacing: '0.03em' }}>
                 Enter Balances
               </h2>
               <p style={{ color: 'var(--cream-dark)', opacity: 0.55, fontSize: '0.85rem', marginBottom: '1rem' }}>

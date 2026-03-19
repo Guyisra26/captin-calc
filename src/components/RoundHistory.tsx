@@ -14,7 +14,7 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
     <div className="card">
       <h3
         style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Cinzel', serif",
           fontSize: '0.68rem',
           fontWeight: 700,
           letterSpacing: '0.12em',
@@ -52,7 +52,7 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
                     fontSize: '0.65rem',
                     padding: '0.1rem 0.4rem',
                     borderRadius: '2px',
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'Cinzel', serif",
                     fontWeight: 700,
                     letterSpacing: '0.05em',
                     background: r.winner === 'captain' ? 'rgba(200,150,40,0.15)' : 'rgba(242,228,196,0.08)',

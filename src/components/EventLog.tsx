@@ -28,7 +28,7 @@ export default function EventLog({ events, roundNumber }: EventLogProps) {
     <div className="card">
       <h3
         style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Cinzel', serif",
           fontSize: '0.68rem',
           fontWeight: 700,
           letterSpacing: '0.12em',

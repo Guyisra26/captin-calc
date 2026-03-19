@@ -8,7 +8,7 @@ interface RoundPanelProps {
 }
 
 const sectionLabel: React.CSSProperties = {
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Cinzel', serif",
   fontSize: '0.68rem',
   fontWeight: 700,
   letterSpacing: '0.12em',
@@ -44,7 +44,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
             }}
           >
             <h3 style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Cinzel', serif",
               fontWeight: 700,
               fontSize: '1.05rem',
               color: lastRound.winner === 'captain' ? 'var(--gold-light)' : 'var(--cream)',
@@ -156,7 +156,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
     <div className="card space-y-4">
       {/* Round Header */}
       <div className="flex items-center justify-between">
-        <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.1rem', color: 'var(--cream)', letterSpacing: '0.03em' }}>
+        <h3 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.1rem', color: 'var(--cream)', letterSpacing: '0.03em' }}>
           Round {round.roundNumber}
         </h3>
         <div className="flex items-center gap-4">
@@ -177,7 +177,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               background: 'linear-gradient(135deg, rgba(200,150,40,0.2), rgba(120,80,20,0.2))',
               border: '1px solid rgba(200,150,40,0.35)',
               color: 'var(--gold-light)',
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Cinzel', serif",
               fontWeight: 700,
               fontSize: '1.15rem',
               padding: '0.6rem 1rem',
@@ -188,7 +188,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
             {captainName}
           </div>
         </div>
-        <span style={{ fontSize: '1.1rem', color: 'var(--gold-dark)', fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>VS</span>
+        <span style={{ fontSize: '1.1rem', color: 'var(--gold-dark)', fontFamily: "'Cinzel', serif", fontWeight: 700 }}>VS</span>
         <div className="text-center flex-1">
           <div style={sectionLabel}>Representative</div>
           <div
@@ -196,7 +196,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               background: 'rgba(0,0,0,0.3)',
               border: '1px solid rgba(242,228,196,0.15)',
               color: 'var(--cream)',
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Cinzel', serif",
               fontWeight: 700,
               fontSize: '1.15rem',
               padding: '0.6rem 1rem',
@@ -416,7 +416,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
           {/* Win type picker */}
           {showResolve && !resolveWinType && (
             <div style={{ background: 'rgba(80,140,50,0.08)', border: '1px solid rgba(80,140,50,0.25)', borderRadius: '4px', padding: '1rem' }}>
-              <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.75rem', fontFamily: "'Playfair Display', serif" }}>
+              <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.75rem', fontFamily: "'Cinzel', serif" }}>
                 How did the round end?
               </p>
               <div className="grid grid-cols-3 gap-2">
@@ -443,7 +443,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
           {/* Winner picker */}
           {showResolve && resolveWinType && (
             <div style={{ background: 'rgba(80,140,50,0.08)', border: '1px solid rgba(80,140,50,0.25)', borderRadius: '4px', padding: '1rem' }}>
-              <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.25rem', fontFamily: "'Playfair Display', serif" }}>
+              <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.25rem', fontFamily: "'Cinzel', serif" }}>
                 {resolveWinType === 'turkish' ? 'Turkish Mars (×3)' : resolveWinType === 'mars' ? 'Mars (×2)' : 'Normal'} — Who won?
               </p>
               <p style={{ color: 'var(--cream-dark)', fontSize: '0.8rem', textAlign: 'center', marginBottom: '0.75rem', opacity: 0.6 }}>
