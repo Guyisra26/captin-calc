@@ -3,11 +3,14 @@ import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
+import { logGameStart, logRoomCode, logRoundComplete, logGameEnded } from './firebaseLog';
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
 
 const MAX_UNDO = 50;
+const LS_ROOM_CODE = 'captainCalc_roomCode';
+const LS_HOST_MODE = 'captainCalc_hostMode';
 
 interface UndoState {
   current: GameState;
@@ -52,10 +55,20 @@ function App() {
 
   const canUndo = history.length > 0;
   const prevStateRef = useRef(state);
+  const gameIdRef = useRef<string | null>(null);
+  const prevScreenRef = useRef(state.screen);
 
   const urlRoom = getRoomCodeFromURL();
-  const [mode, setMode] = useState<AppMode>(() => (urlRoom ? 'spectator' : 'local'));
-  const [roomCode, setRoomCode] = useState<string | null>(() => urlRoom);
+  const [mode, setMode] = useState<AppMode>(() => {
+    if (urlRoom) return 'spectator';
+    const savedCode = localStorage.getItem(LS_ROOM_CODE);
+    if (savedCode && localStorage.getItem(LS_HOST_MODE) === 'host') return 'host';
+    return 'local';
+  });
+  const [roomCode, setRoomCode] = useState<string | null>(() => {
+    if (urlRoom) return urlRoom;
+    return localStorage.getItem(LS_ROOM_CODE);
+  });
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
 
   useEffect(() => {
@@ -64,6 +77,17 @@ function App() {
       prevStateRef.current = state;
     }
   }, [state]);
+
+  // Persist host room code to localStorage
+  useEffect(() => {
+    if (mode === 'host' && roomCode) {
+      localStorage.setItem(LS_ROOM_CODE, roomCode);
+      localStorage.setItem(LS_HOST_MODE, 'host');
+    } else if (mode === 'local') {
+      localStorage.removeItem(LS_ROOM_CODE);
+      localStorage.removeItem(LS_HOST_MODE);
+    }
+  }, [mode, roomCode]);
 
   // Sync to Firebase when hosting
   useEffect(() => {
@@ -77,6 +101,36 @@ function App() {
     const unsub = subscribeRoom(roomCode, (s) => setSpectatorState(s));
     return () => unsub();
   }, [mode, roomCode]);
+
+  // Log game start to Firebase
+  useEffect(() => {
+    if (prevScreenRef.current === 'setup' && state.screen === 'game') {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      gameIdRef.current = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+        .map(b => chars[b % chars.length])
+        .join('');
+      logGameStart(gameIdRef.current, state.players, roomCode);
+    }
+    prevScreenRef.current = state.screen;
+  }, [state.screen, state.players, roomCode]);
+
+  // Log each completed round
+  const prevRoundCountRef = useRef(0);
+  useEffect(() => {
+    const count = state.roundHistory.length;
+    if (count > prevRoundCountRef.current && gameIdRef.current) {
+      const latest = state.roundHistory[count - 1];
+      logRoundComplete(gameIdRef.current, latest);
+    }
+    prevRoundCountRef.current = count;
+  }, [state.roundHistory]);
+
+  // Log room code when host room is created mid-game
+  useEffect(() => {
+    if (roomCode && gameIdRef.current && state.screen === 'game') {
+      logRoomCode(gameIdRef.current, roomCode);
+    }
+  }, [roomCode, state.screen]);
 
   const handleUndo = useCallback(() => {
     dispatch({ type: 'UNDO' });
@@ -105,6 +159,10 @@ function App() {
       deleteRoom(roomCode);
       setMode('local');
       setRoomCode(null);
+    }
+    if (action.type === 'RESET_GAME' && gameIdRef.current) {
+      logGameEnded(gameIdRef.current);
+      gameIdRef.current = null;
     }
     dispatch(action);
   }, [mode, roomCode, dispatch]);
