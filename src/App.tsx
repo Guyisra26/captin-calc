@@ -57,6 +57,7 @@ function App() {
   const prevStateRef = useRef(state);
   const gameIdRef = useRef<string | null>(null);
   const prevScreenRef = useRef(state.screen);
+  const roomCodeLoggedRef = useRef<string | null>(null);
 
   const urlRoom = getRoomCodeFromURL();
   const [mode, setMode] = useState<AppMode>(() => {
@@ -125,9 +126,15 @@ function App() {
     prevRoundCountRef.current = count;
   }, [state.roundHistory]);
 
-  // Log room code when host room is created mid-game
+  // Log room code once per game when host room is created
   useEffect(() => {
-    if (roomCode && gameIdRef.current && state.screen === 'game') {
+    if (
+      roomCode &&
+      gameIdRef.current &&
+      state.screen === 'game' &&
+      roomCodeLoggedRef.current !== gameIdRef.current
+    ) {
+      roomCodeLoggedRef.current = gameIdRef.current;
       logRoomCode(gameIdRef.current, roomCode);
     }
   }, [roomCode, state.screen]);
@@ -163,6 +170,7 @@ function App() {
     if (action.type === 'RESET_GAME' && gameIdRef.current) {
       logGameEnded(gameIdRef.current);
       gameIdRef.current = null;
+      roomCodeLoggedRef.current = null;
     }
     dispatch(action);
   }, [mode, roomCode, dispatch]);
