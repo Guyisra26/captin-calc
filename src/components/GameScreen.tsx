@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import type { GameState, GameAction } from '../types';
 import Scoreboard from './Scoreboard';
 import RoundPanel from './RoundPanel';
@@ -35,6 +35,31 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
   const [newPlayerName, setNewPlayerName] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Snapshot player balances at the start of each round.
+  // During an active round the scoreboard shows these frozen values so that
+  // mid-round removal settlements don't confuse the display. The delta shown
+  // after the round ends is the net change (removals + resolution combined).
+  const roundStartBalancesRef = useRef<Record<string, number>>({});
+  const prevRoundNumberRef = useRef<number>(0);
+
+  useEffect(() => {
+    const r = state.currentRound;
+    if (r && !r.isComplete && r.roundNumber !== prevRoundNumberRef.current) {
+      prevRoundNumberRef.current = r.roundNumber;
+      const snap: Record<string, number> = {};
+      for (const p of state.players) snap[p.id] = p.balance;
+      roundStartBalancesRef.current = snap;
+    }
+  }, [state.currentRound?.roundNumber]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const roundActive = round !== null && !round.isComplete;
+  const roundStartBalances = useMemo(
+    () => roundStartBalancesRef.current,
+    // Re-memoize when round activity changes (active → ended → new round)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [roundActive, state.currentRound?.roundNumber]
+  );
 
   // Close menu on outside click
   useEffect(() => {
@@ -279,7 +304,8 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
               players={state.players}
               captainId={round?.captainId ?? state.captainId}
               removedBPlayerIds={round?.removedBPlayerIds}
-              lastRound={state.roundHistory[state.roundHistory.length - 1]}
+              roundActive={roundActive}
+              roundStartBalances={roundStartBalances}
             />
             <RoundHistory history={state.roundHistory} />
           </div>
