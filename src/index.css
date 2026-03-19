@@ -1,11 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
-  --color-captain: #f59e0b;
-  --color-teamb: #3b82f6;
-  --color-positive: #22c55e;
-  --color-negative: #ef4444;
-  --color-removed: #9ca3af;
+  --wood-darkest: #0d0500;
+  --wood-dark: #1a0800;
+  --wood-mid: #2d1200;
+  --wood-grain: #3a1800;
+  --felt: #420918;
+  --felt-mid: #5a0d20;
+  --felt-light: #6e1228;
+  --felt-border: #8a1a34;
+  --gold: #c9932c;
+  --gold-dark: #7a5a14;
+  --gold-light: #e8c264;
+  --gold-bright: #f0d878;
+  --cream: #f2e4c4;
+  --cream-dark: #c8b48a;
+  --checker-light: #e8c264;  /* ivory/amber checker */
+  --checker-dark: #1a0800;   /* dark espresso checker */
+  --point-a: #b8832a;
+  --point-b: #2d0a00;
+
+  --color-captain: var(--gold);
+  --color-teamb: var(--cream);
+  --color-positive: #5a9e3a;
+  --color-negative: #c04040;
+  --color-removed: #7a6a5a;
 }
 
 * {
@@ -20,55 +40,224 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: var(--cream);
+  background-color: var(--wood-darkest);
+  background-image:
+    repeating-linear-gradient(
+      88deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.018) 40px,
+      rgba(255,255,255,0.018) 42px
+    ),
+    repeating-linear-gradient(
+      92deg,
+      transparent,
+      transparent 60px,
+      rgba(0,0,0,0.15) 60px,
+      rgba(0,0,0,0.15) 62px
+    ),
+    linear-gradient(180deg, #0d0500 0%, #1a0800 40%, #0d0500 100%);
 }
 
-/* Touch-friendly button base */
+/* ─── Base button ─── */
 .btn {
-  @apply px-5 py-3 rounded-xl font-semibold text-base transition-all duration-150 active:scale-95 select-none inline-flex items-center justify-center gap-2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  transition: all 0.12s ease;
   min-height: 48px;
   min-width: 48px;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
+.btn:active {
+  transform: scale(0.96);
+}
+
+/* Captain button — gold ivory checker */
 .btn-captain {
-  @apply bg-amber-500 text-slate-900;
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+  color: var(--wood-darkest);
+  box-shadow: 0 2px 0 var(--gold-dark), 0 4px 12px rgba(200,150,40,0.25);
+  border: 1px solid var(--gold-light);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
 }
 
+.btn-captain:active {
+  box-shadow: 0 1px 0 var(--gold-dark), 0 2px 6px rgba(200,150,40,0.2);
+}
+
+/* Team B button — dark espresso checker */
 .btn-teamb {
-  @apply bg-blue-500 text-white;
+  background: linear-gradient(135deg, #3a1800 0%, #1a0800 100%);
+  color: var(--cream);
+  box-shadow: 0 2px 0 #0a0200, 0 4px 12px rgba(0,0,0,0.4);
+  border: 1px solid #5a2a00;
+}
+
+.btn-teamb:active {
+  box-shadow: 0 1px 0 #0a0200, 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .btn-danger {
-  @apply bg-red-500 text-white;
+  background: linear-gradient(135deg, #c04040 0%, #8a1a1a 100%);
+  color: var(--cream);
+  box-shadow: 0 2px 0 #5a0a0a;
+  border: 1px solid #c04040;
 }
 
 .btn-success {
-  @apply bg-emerald-500 text-white;
+  background: linear-gradient(135deg, #4a8a2a 0%, #2a5a14 100%);
+  color: var(--cream);
+  box-shadow: 0 2px 0 #142a0a;
+  border: 1px solid #4a8a2a;
 }
 
 .btn-ghost {
-  @apply bg-slate-700 text-slate-200;
+  background: rgba(255,255,255,0.06);
+  color: var(--cream-dark);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .btn-disabled {
-  @apply opacity-40 pointer-events-none;
+  opacity: 0.35;
+  pointer-events: none;
 }
 
+/* ─── Card / Board panel ─── */
 .card {
-  @apply bg-slate-800 rounded-2xl p-4 border border-slate-700;
+  background: var(--felt);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(110,18,40,0.6) 0%, transparent 70%),
+    radial-gradient(ellipse at 50% 100%, rgba(30,4,12,0.4) 0%, transparent 70%);
+  border: 1px solid var(--felt-border);
+  border-radius: 4px;
+  padding: 1rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.3),
+    0 4px 24px rgba(0,0,0,0.5),
+    0 0 0 3px var(--wood-mid),
+    0 0 0 4px var(--gold-dark);
+  position: relative;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.5;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* ─── Board triangle strip ─── */
+.board-points {
+  display: flex;
+  overflow: hidden;
+  height: 20px;
+  flex-shrink: 0;
 }
-::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 3px;
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--wood-darkest); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+
+/* ─── Input fields ─── */
+.board-input {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--felt-border);
+  border-bottom: 2px solid var(--gold-dark);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.1rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.board-input:focus {
+  border-bottom-color: var(--gold);
+  box-shadow: 0 2px 0 0 var(--gold);
+}
+
+.board-input::placeholder {
+  color: var(--cream-dark);
+  opacity: 0.4;
+}
+
+/* ─── Badge styles ─── */
+.badge-captain {
+  font-size: 0.7rem;
+  font-family: 'Playfair Display', serif;
+  background: rgba(201,147,44,0.2);
+  color: var(--gold-light);
+  border: 1px solid rgba(201,147,44,0.4);
+  padding: 0.1rem 0.5rem;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.badge-teamb {
+  font-size: 0.7rem;
+  font-family: 'Playfair Display', serif;
+  background: rgba(242,228,196,0.1);
+  color: var(--cream-dark);
+  border: 1px solid rgba(242,228,196,0.2);
+  padding: 0.1rem 0.5rem;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+.badge-out {
+  font-size: 0.7rem;
+  font-family: 'Playfair Display', serif;
+  background: rgba(122,106,90,0.2);
+  color: var(--color-removed);
+  border: 1px solid rgba(122,106,90,0.3);
+  padding: 0.1rem 0.5rem;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Doubling cube display ─── */
+.doubling-cube {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #f2e4c4 0%, #c8b48a 100%);
+  border: 2px solid var(--cream-dark);
+  border-radius: 8px;
+  color: var(--wood-darkest);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  box-shadow:
+    0 2px 0 var(--gold-dark),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 4px 12px rgba(0,0,0,0.4);
 }

@@ -12,43 +12,80 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
 
   return (
     <div className="card">
-      <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+      <h3
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: '0.68rem',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--gold-dark)',
+          marginBottom: '0.6rem',
+        }}
+      >
         Round History
       </h3>
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         {[...history].reverse().map(r => (
           <div key={r.roundNumber}>
             <button
               onClick={() => setExpanded(expanded === r.roundNumber ? null : r.roundNumber)}
-              className="w-full text-left px-3 py-2 rounded-lg bg-slate-700/30 flex items-center justify-between"
+              className="w-full text-left px-2.5 py-2 flex items-center justify-between"
+              style={{
+                borderRadius: '4px',
+                background: 'rgba(0,0,0,0.2)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                transition: 'background 0.1s',
+              }}
             >
               <div className="flex items-center gap-2">
-                <span className="text-slate-500 text-sm">R{r.roundNumber}</span>
-                <span className="text-slate-300 font-medium">{r.captainName}</span>
-                <span className="text-slate-500">vs</span>
-                <span className="text-slate-300 font-medium">{r.representativeName}</span>
+                <span style={{ color: 'var(--gold-dark)', fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 700 }}>
+                  R{r.roundNumber}
+                </span>
+                <span style={{ color: 'var(--cream-dark)', fontSize: '0.88rem' }}>{r.captainName}</span>
+                <span style={{ color: 'var(--gold-dark)', fontSize: '0.75rem', opacity: 0.6 }}>vs</span>
+                <span style={{ color: 'var(--cream-dark)', fontSize: '0.88rem' }}>{r.representativeName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  r.winner === 'captain'
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'bg-blue-500/20 text-blue-400'
-                }`}>
-                  {r.winner === 'captain' ? 'CPT' : 'B'} wins
+                <span
+                  style={{
+                    fontSize: '0.65rem',
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '2px',
+                    fontFamily: "'Playfair Display', serif",
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    background: r.winner === 'captain' ? 'rgba(200,150,40,0.15)' : 'rgba(242,228,196,0.08)',
+                    color: r.winner === 'captain' ? 'var(--gold-light)' : 'var(--cream-dark)',
+                    border: r.winner === 'captain' ? '1px solid rgba(200,150,40,0.3)' : '1px solid rgba(242,228,196,0.12)',
+                  }}
+                >
+                  {r.winner === 'captain' ? 'CPT' : 'B'}
+                  {r.winType === 'turkish' ? ' TM' : r.winType === 'mars' ? ' M' : ''}
                 </span>
-                <span className="text-slate-500 text-sm">{expanded === r.roundNumber ? '−' : '+'}</span>
+                <span style={{ color: 'var(--gold-dark)', fontSize: '0.8rem', opacity: 0.7 }}>
+                  {expanded === r.roundNumber ? '−' : '+'}
+                </span>
               </div>
             </button>
 
             {expanded === r.roundNumber && (
-              <div className="ml-4 mt-1 space-y-1 text-sm text-slate-400 pl-3 border-l border-slate-700">
-                <p>Final stake: {r.finalPerPlayerStake} per player</p>
-                <p>Doublings: {r.doublings}</p>
-                {r.removals.length > 0 && (
-                  <p>Removed: {r.removals.join(', ')}</p>
-                )}
+              <div
+                className="space-y-0.5"
+                style={{
+                  marginLeft: '0.75rem',
+                  marginTop: '0.25rem',
+                  paddingLeft: '0.75rem',
+                  borderLeft: '2px solid rgba(200,150,40,0.2)',
+                  fontSize: '0.82rem',
+                  color: 'var(--cream-dark)',
+                  opacity: 0.75,
+                }}
+              >
+                <p>Stake: {r.finalPerPlayerStake}/player · {r.doublings} doublings</p>
+                {r.removals.length > 0 && <p>Removed: {r.removals.join(', ')}</p>}
                 {r.events.map((e, i) => (
-                  <p key={i} className="text-slate-500">{e.description}</p>
+                  <p key={i} style={{ opacity: 0.7 }}>{e.description}</p>
                 ))}
               </div>
             )}
