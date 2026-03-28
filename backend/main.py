@@ -5,6 +5,8 @@ from contextlib import asynccontextmanager
 from db import connect_db, close_db
 from routes.auth import router as auth_router
 from routes.players import router as players_router
+from routes.games import router as games_router
+from routes.dashboard import router as dashboard_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +29,8 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(players_router, prefix="/api")
+app.include_router(games_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
 
 @app.get("/health")
 async def health():
