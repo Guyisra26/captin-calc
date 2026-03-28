@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import DashboardScreen from './DashboardScreen';
 
@@ -23,18 +23,18 @@ export default function AdminScreen({ onBack }: Props) {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  const loadUsers = () => {
+  const loadUsers = useCallback(() => {
     setLoading(true);
     setFetchError('');
     api.getAdminUsers()
       .then(setUsers)
       .catch(() => setFetchError('Failed to load users'))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     if (tab === 'users') loadUsers();
-  }, [tab]);
+  }, [tab, loadUsers]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
