@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from db import get_db
 from auth import get_current_user
 
@@ -9,7 +9,7 @@ def _fmt(p: dict) -> dict:
     return {"id": str(p["_id"]), "name": p["name"], "photo_url": p.get("photo_url")}
 
 class CreatePlayerRequest(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=100)
     photo_url: str | None = None
 
 @router.get("")
@@ -25,15 +25,21 @@ async def list_players_public():
     players = await db.players.find().sort("name", 1).to_list(200)
     return [_fmt(p) for p in players]
 
-@router.post("")
+@router.post("", status_code=201)
 async def create_player(body: CreatePlayerRequest, _=Depends(get_current_user)):
     db = get_db()
-    result = await db.players.insert_one({"name": body.name, "photo_url": body.photo_url})
+    doc = {"name": body.name}
+    if body.photo_url:
+        doc["photo_url"] = body.photo_url
+    result = await db.players.insert_one(doc)
     return {"id": str(result.inserted_id), "name": body.name, "photo_url": body.photo_url}
 
-@router.post("/public")
+@router.post("/public", status_code=201)
 async def create_player_public(body: CreatePlayerRequest):
     """No auth required — called when a new player is added during game setup."""
     db = get_db()
-    result = await db.players.insert_one({"name": body.name, "photo_url": body.photo_url})
+    doc = {"name": body.name}
+    if body.photo_url:
+        doc["photo_url"] = body.photo_url
+    result = await db.players.insert_one(doc)
     return {"id": str(result.inserted_id), "name": body.name, "photo_url": body.photo_url}
