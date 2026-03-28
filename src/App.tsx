@@ -7,6 +7,8 @@ import { logGameStart, logRoomCode, logRoundComplete, logGameEnded } from './fir
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
+import LoginScreen from './components/LoginScreen';
+import { isLoggedIn, clearAuth } from './auth';
 
 const MAX_UNDO = 50;
 const LS_ROOM_CODE = 'captainCalc_roomCode';
@@ -71,6 +73,7 @@ function App() {
     return localStorage.getItem(LS_ROOM_CODE);
   });
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
 
   useEffect(() => {
     if (state !== prevStateRef.current) {
@@ -172,8 +175,16 @@ function App() {
       gameIdRef.current = null;
       roomCodeLoggedRef.current = null;
     }
+    if (action.type === 'RESET_GAME') {
+      clearAuth();
+      setLoggedIn(false);
+    }
     dispatch(action);
   }, [mode, roomCode, dispatch]);
+
+  if (!loggedIn && mode !== 'spectator') {
+    return <LoginScreen onLogin={() => setLoggedIn(true)} />;
+  }
 
   // Spectator mode: show remote state
   if (mode === 'spectator') {
