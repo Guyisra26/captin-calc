@@ -9,7 +9,7 @@ import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
 import LoginScreen from './components/LoginScreen';
 import DashboardScreen from './components/DashboardScreen';
-import { isLoggedIn, clearAuth, getToken } from './auth';
+import { isLoggedIn, getToken } from './auth';
 import { api } from './api';
 
 async function saveGameToBackend(
@@ -18,8 +18,6 @@ async function saveGameToBackend(
 ): Promise<void> {
   // Resolve mongo IDs — if a player has no mongoId, skip saving
   // (game had unregistered players with no DB entry yet)
-  const allResolved = state.players.every(p => playerMongoIds[p.id]);
-
   // Build the player_ids list (mongo IDs)
   const playerIds = state.players
     .map(p => playerMongoIds[p.id])
@@ -188,7 +186,7 @@ function App() {
 
   const [playerMongoIds, setPlayerMongoIds] = useState<Record<string, string>>({});
 
-  const handleStartGame = (
+  const handleStartGame = async (
     players: { id: string; name: string }[],
     captainId: string,
     teamBOrder: string[],
@@ -196,18 +194,20 @@ function App() {
     mongoIdMap?: Record<string, string>
   ) => {
     if (mongoIdMap) {
-      // Register any new players (no mongoId yet) and update the map
       const newPlayers = players.filter(p => !mongoIdMap[p.id]);
       if (newPlayers.length > 0) {
-        Promise.all(
-          newPlayers.map(p =>
-            api.createPlayer(p.name).then(created => {
+        try {
+          await Promise.all(
+            newPlayers.map(async p => {
+              const created = await api.createPlayer(p.name);
               mongoIdMap[p.id] = created.id;
             })
-          )
-        ).catch(console.error);
+          );
+        } catch {
+          console.error('Failed to register some players in DB');
+        }
       }
-      setPlayerMongoIds(mongoIdMap);
+      setPlayerMongoIds({ ...mongoIdMap }); // spread to trigger re-render with updated values
     }
     dispatch({ type: 'START_GAME', players, captainId, teamBOrder, initialBalances });
   };
@@ -234,10 +234,6 @@ function App() {
       logGameEnded(gameIdRef.current);
       gameIdRef.current = null;
       roomCodeLoggedRef.current = null;
-    }
-    if (action.type === 'RESET_GAME') {
-      clearAuth();
-      setLoggedIn(false);
     }
     dispatch(action);
   }, [mode, roomCode, dispatch, state, playerMongoIds]);
