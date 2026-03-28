@@ -9,7 +9,8 @@ import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
 import LoginScreen from './components/LoginScreen';
 import DashboardScreen from './components/DashboardScreen';
-import { isLoggedIn, getToken } from './auth';
+import AdminScreen from './components/AdminScreen';
+import { isLoggedIn, getToken, getDisplayName } from './auth';
 import { api } from './api';
 
 async function saveGameToBackend(
@@ -110,8 +111,9 @@ function App() {
   });
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
   const [loggedIn, setLoggedIn] = useState(isLoggedIn);
-  type View = 'game' | 'dashboard';
+  type View = 'game' | 'dashboard' | 'admin';
   const [view, setView] = useState<View>('game');
+  const isAdmin = getDisplayName() === import.meta.env.VITE_ADMIN_USERNAME;
 
   useEffect(() => {
     if (state !== prevStateRef.current) {
@@ -246,6 +248,10 @@ function App() {
     return <DashboardScreen onBack={() => setView('game')} />;
   }
 
+  if (loggedIn && view === 'admin') {
+    return <AdminScreen onBack={() => setView('game')} />;
+  }
+
   // Spectator mode: show remote state
   if (mode === 'spectator') {
     if (!spectatorState || spectatorState.screen === 'setup') {
@@ -285,6 +291,7 @@ function App() {
       roomCode={roomCode}
       onCreateRoom={handleCreateRoom}
       onOpenDashboard={() => setView('dashboard')}
+      onOpenAdmin={isAdmin ? () => setView('admin') : undefined}
     />
   );
 }

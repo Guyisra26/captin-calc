@@ -14,6 +14,7 @@ interface GameScreenProps {
   roomCode: string | null;
   onCreateRoom: () => void;
   onOpenDashboard: () => void;
+  onOpenAdmin?: () => void;
 }
 
 function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
@@ -30,7 +31,7 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
   );
 }
 
-export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard }: GameScreenProps) {
+export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard, onOpenAdmin }: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -218,6 +219,14 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 {mode === 'host' && roomCode && (
                   <button onClick={handleCopyLink} style={{ ...menuItemStyle, color: '#7ac858' }}>
                     ⎘ Copy Spectator Link
+                  </button>
+                )}
+                {onOpenAdmin && (
+                  <button
+                    onClick={() => { onOpenAdmin(); setMenuOpen(false); }}
+                    style={{ ...menuItemStyle, color: 'var(--gold-light)' }}
+                  >
+                    ⚙ Admin
                   </button>
                 )}
                 <button
