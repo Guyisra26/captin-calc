@@ -27,6 +27,7 @@ export interface RoundState {
   canPivot: boolean; // Opposing side can pivot (accept + counter-double)
   events: RoundEvent[];
   isComplete: boolean;
+  startBalances: Record<string, number>; // player balances at the moment this round started
 }
 
 export interface RoundSummary {
@@ -65,6 +66,7 @@ export type GameAction =
   | { type: 'PIVOT'; pivoter: 'captain' | 'teamB' }
   | { type: 'RESOLVE_ROUND'; winner: 'captain' | 'teamB'; winType: 'normal' | 'mars' | 'turkish' }
   | { type: 'ADD_PLAYER'; name: string }
+  | { type: 'REMOVE_PLAYER'; playerId: string; balanceAdjustments: Record<string, number> }
   | { type: 'RESET_GAME' };
 
 export type AppMode = 'local' | 'host' | 'spectator';
