@@ -78,4 +78,13 @@ export const api = {
     }),
 
   getDashboard: () => request<PlayerStats[]>('/dashboard'),
+
+  getAdminUsers: () =>
+    request<{ id: string; username: string; display_name: string }[]>('/admin/users'),
+
+  createAdminUser: (data: { username: string; display_name: string; password: string }) =>
+    request<{ ok: boolean }>('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
