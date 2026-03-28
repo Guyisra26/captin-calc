@@ -146,12 +146,16 @@ function App() {
     dispatch({ type: 'UNDO' });
   }, []);
 
+  const [playerMongoIds, setPlayerMongoIds] = useState<Record<string, string>>({});
+
   const handleStartGame = (
     players: { id: string; name: string }[],
     captainId: string,
     teamBOrder: string[],
-    initialBalances?: Record<string, number>
+    initialBalances?: Record<string, number>,
+    mongoIdMap?: Record<string, string>
   ) => {
+    if (mongoIdMap) setPlayerMongoIds(mongoIdMap);
     dispatch({ type: 'START_GAME', players, captainId, teamBOrder, initialBalances });
   };
 

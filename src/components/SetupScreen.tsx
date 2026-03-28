@@ -1,12 +1,22 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { api } from '../api';
+import type { PlayerSummary } from '../api';
 
 interface SetupProps {
-  onStartGame: (players: { id: string; name: string }[], captainId: string, teamBOrder: string[], initialBalances?: Record<string, number>) => void;
+  onStartGame: (
+    players: { id: string; name: string }[],
+    captainId: string,
+    teamBOrder: string[],
+    initialBalances?: Record<string, number>,
+    mongoIdMap?: Record<string, string>
+  ) => void;
 }
 
 interface PlayerEntry {
   id: string;
   name: string;
+  isRegistered: boolean;
+  playerId?: string;  // MongoDB player _id if registered
 }
 
 function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
@@ -25,8 +35,8 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
 
 export default function SetupScreen({ onStartGame }: SetupProps) {
   const [players, setPlayers] = useState<PlayerEntry[]>([
-    { id: crypto.randomUUID(), name: '' },
-    { id: crypto.randomUUID(), name: '' },
+    { id: crypto.randomUUID(), name: '', isRegistered: true },
+    { id: crypto.randomUUID(), name: '', isRegistered: true },
   ]);
   const [captainId, setCaptainId] = useState<string>('');
   const [step, setStep] = useState<'names' | 'captain' | 'order' | 'mode' | 'balances'>('names');
@@ -35,8 +45,14 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
 
+  const [registeredPlayers, setRegisteredPlayers] = useState<PlayerSummary[]>([]);
+
+  useEffect(() => {
+    api.getPlayers().then(setRegisteredPlayers).catch(() => {});
+  }, []);
+
   const addPlayer = () => {
-    setPlayers([...players, { id: crypto.randomUUID(), name: '' }]);
+    setPlayers([...players, { id: crypto.randomUUID(), name: '', isRegistered: true }]);
   };
 
   const removePlayer = (id: string) => {
@@ -48,7 +64,22 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
     setPlayers(players.map(p => p.id === id ? { ...p, name } : p));
   };
 
-  const validPlayers = players.filter(p => p.name.trim().length > 0);
+  const toggleRegistered = (id: string, isRegistered: boolean) => {
+    setPlayers(players.map(p =>
+      p.id === id ? { ...p, isRegistered, name: '', playerId: undefined } : p
+    ));
+  };
+
+  const selectRegisteredPlayer = (id: string, playerId: string) => {
+    const rp = registeredPlayers.find(r => r.id === playerId);
+    setPlayers(players.map(p =>
+      p.id === id ? { ...p, playerId, name: rp?.name ?? '' } : p
+    ));
+  };
+
+  const validPlayers = players.filter(p =>
+    p.isRegistered ? !!p.playerId : p.name.trim().length > 0
+  );
   const canProceedToCapt = validPlayers.length >= 2;
 
   const goToCaptainSelect = () => {
@@ -64,23 +95,32 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
   };
 
   const handleStartFresh = () => {
-    onStartGame(
-      validPlayers.map(p => ({ id: p.id, name: p.name.trim() })),
-      captainId,
-      teamBOrder
-    );
-  };
-
-  const handleStartResume = () => {
-    const parsed: Record<string, number> = {};
+    const mongoIdMap: Record<string, string> = {};
     for (const p of validPlayers) {
-      parsed[p.id] = parseFloat(balances[p.id] || '0') || 0;
+      if (p.playerId) mongoIdMap[p.id] = p.playerId;
     }
     onStartGame(
       validPlayers.map(p => ({ id: p.id, name: p.name.trim() })),
       captainId,
       teamBOrder,
-      parsed
+      undefined,
+      mongoIdMap
+    );
+  };
+
+  const handleStartResume = () => {
+    const parsed: Record<string, number> = {};
+    const mongoIdMap: Record<string, string> = {};
+    for (const p of validPlayers) {
+      parsed[p.id] = parseFloat(balances[p.id] || '0') || 0;
+      if (p.playerId) mongoIdMap[p.id] = p.playerId;
+    }
+    onStartGame(
+      validPlayers.map(p => ({ id: p.id, name: p.name.trim() })),
+      captainId,
+      teamBOrder,
+      parsed,
+      mongoIdMap
     );
   };
 
@@ -177,25 +217,60 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               </h2>
               <div className="space-y-2.5 mb-4">
                 {players.map((p, i) => (
-                  <div key={p.id} className="flex items-center gap-2">
-                    <span style={{ color: 'var(--gold-dark)', fontFamily: 'monospace', width: '1.4rem', textAlign: 'right', fontSize: '0.85rem' }}>{i + 1}</span>
-                    <input
-                      type="text"
-                      value={p.name}
-                      onChange={e => updateName(p.id, e.target.value)}
-                      placeholder={`Player ${i + 1}`}
-                      className="board-input flex-1"
-                      autoFocus={i === 0}
-                    />
-                    {players.length > 2 && (
+                  <div key={p.id} className="flex flex-col gap-1.5 mb-1">
+                    {/* Registered / New toggle */}
+                    <div className="flex gap-1">
                       <button
-                        onClick={() => removePlayer(p.id)}
-                        className="btn btn-ghost px-3 py-2 text-sm"
-                        style={{ minHeight: '40px', color: 'var(--color-removed)' }}
+                        type="button"
+                        onClick={() => toggleRegistered(p.id, true)}
+                        className={`btn text-xs px-2 py-1 ${p.isRegistered ? 'btn-captain' : 'btn-ghost'}`}
+                        style={{ minHeight: '28px', fontSize: '0.75rem' }}
                       >
-                        ✕
+                        Registered
                       </button>
-                    )}
+                      <button
+                        type="button"
+                        onClick={() => toggleRegistered(p.id, false)}
+                        className={`btn text-xs px-2 py-1 ${!p.isRegistered ? 'btn-captain' : 'btn-ghost'}`}
+                        style={{ minHeight: '28px', fontSize: '0.75rem' }}
+                      >
+                        New
+                      </button>
+                      {players.length > 2 && (
+                        <button
+                          onClick={() => removePlayer(p.id)}
+                          className="btn btn-ghost px-3 py-1 text-sm ml-auto"
+                          style={{ minHeight: '28px', color: 'var(--color-removed)' }}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Input: dropdown or text */}
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: 'var(--gold-dark)', fontFamily: 'monospace', width: '1.4rem', textAlign: 'right', fontSize: '0.85rem' }}>{i + 1}</span>
+                      {p.isRegistered ? (
+                        <select
+                          value={p.playerId ?? ''}
+                          onChange={e => selectRegisteredPlayer(p.id, e.target.value)}
+                          className="board-input flex-1"
+                        >
+                          <option value="">Select player...</option>
+                          {registeredPlayers.map(rp => (
+                            <option key={rp.id} value={rp.id}>{rp.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={p.name}
+                          onChange={e => updateName(p.id, e.target.value)}
+                          placeholder={`Player ${i + 1}`}
+                          className="board-input flex-1"
+                        />
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
