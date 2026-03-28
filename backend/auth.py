@@ -5,7 +5,9 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SECRET = os.getenv("JWT_SECRET", "dev-secret")
+SECRET = os.getenv("JWT_SECRET")
+if not SECRET:
+    raise RuntimeError("JWT_SECRET environment variable is not set")
 ALGORITHM = "HS256"
 EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "10080"))
 
