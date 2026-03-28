@@ -15,6 +15,7 @@ interface GameScreenProps {
   onCreateRoom: () => void;
   onOpenDashboard: () => void;
   onOpenAdmin?: () => void;
+  onEndGame?: () => void;
 }
 
 function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
@@ -31,7 +32,7 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
   );
 }
 
-export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard, onOpenAdmin }: GameScreenProps) {
+export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard, onOpenAdmin, onEndGame }: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -247,6 +248,14 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 >
                   ↩ Undo
                 </button>
+                {onEndGame && !roundActive && (
+                  <button
+                    onClick={() => { onEndGame(); setMenuOpen(false); }}
+                    style={{ ...menuItemStyle, color: '#c8923a' }}
+                  >
+                    ⬛ End Game
+                  </button>
+                )}
                 <button
                   onClick={handleReset}
                   style={{ ...menuItemStyle, color: '#e07070', borderBottom: 'none' }}

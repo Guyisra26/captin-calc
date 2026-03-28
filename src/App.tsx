@@ -10,6 +10,7 @@ import SpectatorScreen from './components/SpectatorScreen';
 import LoginScreen from './components/LoginScreen';
 import DashboardScreen from './components/DashboardScreen';
 import AdminScreen from './components/AdminScreen';
+import GameSummaryScreen from './components/GameSummaryScreen';
 import { isLoggedIn, getToken, getDisplayName } from './auth';
 import { api } from './api';
 
@@ -111,7 +112,7 @@ function App() {
   });
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
   const [loggedIn, setLoggedIn] = useState(isLoggedIn);
-  type View = 'game' | 'dashboard' | 'admin';
+  type View = 'game' | 'dashboard' | 'admin' | 'summary';
   const [view, setView] = useState<View>('game');
   const isAdmin = getDisplayName() === import.meta.env.VITE_ADMIN_USERNAME;
 
@@ -252,6 +253,18 @@ function App() {
     return <AdminScreen onBack={() => setView('game')} />;
   }
 
+  if (loggedIn && view === 'summary') {
+    return (
+      <GameSummaryScreen
+        state={state}
+        onNewGame={() => {
+          handleDispatch({ type: 'RESET_GAME' });
+          setView('game');
+        }}
+      />
+    );
+  }
+
   // Spectator mode: show remote state
   if (mode === 'spectator') {
     if (!spectatorState || spectatorState.screen === 'setup') {
@@ -292,6 +305,7 @@ function App() {
       onCreateRoom={handleCreateRoom}
       onOpenDashboard={() => setView('dashboard')}
       onOpenAdmin={isAdmin ? () => setView('admin') : undefined}
+      onEndGame={state.roundHistory.length > 0 ? () => setView('summary') : undefined}
     />
   );
 }
