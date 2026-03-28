@@ -392,9 +392,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       validateZeroSum(newPlayers);
 
       const newTeamBOrder = state.teamBOrder.filter(id => id !== playerId);
-      // If removed player was captain, promote first remaining player
+      // If removed player was captain, promote first in rotation order
       const newCaptainId =
-        state.captainId === playerId ? (newPlayers[0]?.id ?? '') : state.captainId;
+        state.captainId === playerId ? (newTeamBOrder[0] ?? '') : state.captainId;
 
       return {
         ...state,
