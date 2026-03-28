@@ -8,6 +8,7 @@ import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
 import LoginScreen from './components/LoginScreen';
+import DashboardScreen from './components/DashboardScreen';
 import { isLoggedIn, clearAuth, getToken } from './auth';
 import { api } from './api';
 
@@ -111,6 +112,8 @@ function App() {
   });
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
   const [loggedIn, setLoggedIn] = useState(isLoggedIn);
+  type View = 'game' | 'dashboard';
+  const [view, setView] = useState<View>('game');
 
   useEffect(() => {
     if (state !== prevStateRef.current) {
@@ -243,6 +246,10 @@ function App() {
     return <LoginScreen onLogin={() => setLoggedIn(true)} />;
   }
 
+  if (loggedIn && view === 'dashboard') {
+    return <DashboardScreen onBack={() => setView('game')} />;
+  }
+
   // Spectator mode: show remote state
   if (mode === 'spectator') {
     if (!spectatorState || spectatorState.screen === 'setup') {
@@ -262,6 +269,7 @@ function App() {
         mode="spectator"
         roomCode={roomCode}
         onCreateRoom={() => {}}
+        onOpenDashboard={() => {}}
       />
     );
   }
@@ -280,6 +288,7 @@ function App() {
       mode={mode}
       roomCode={roomCode}
       onCreateRoom={handleCreateRoom}
+      onOpenDashboard={() => setView('dashboard')}
     />
   );
 }
