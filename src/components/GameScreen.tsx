@@ -4,6 +4,7 @@ import Scoreboard from './Scoreboard';
 import RoundPanel from './RoundPanel';
 import EventLog from './EventLog';
 import RoundHistory from './RoundHistory';
+import RemovePlayerModal from './RemovePlayerModal';
 
 interface GameScreenProps {
   state: GameState;
@@ -35,6 +36,7 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
 export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard, onOpenAdmin, onEndGame }: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -242,6 +244,14 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 >
                   + Add Player
                 </button>
+                {!roundActive && state.players.length > 1 && (
+                  <button
+                    onClick={() => { setShowRemoveModal(true); setMenuOpen(false); }}
+                    style={menuItemStyle}
+                  >
+                    − Remove Player
+                  </button>
+                )}
                 <button
                   onClick={() => { onUndo(); setMenuOpen(false); }}
                   style={{ ...menuItemStyle, opacity: canUndo ? 1 : 0.35, pointerEvents: canUndo ? 'auto' : 'none' }}
@@ -323,6 +333,17 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
 
       {/* Triangle strip — bottom */}
       <BoardPoints flip />
+
+      {showRemoveModal && (
+        <RemovePlayerModal
+          players={state.players}
+          onConfirm={(playerId, balanceAdjustments) => {
+            dispatch({ type: 'REMOVE_PLAYER', playerId, balanceAdjustments });
+            setShowRemoveModal(false);
+          }}
+          onCancel={() => setShowRemoveModal(false)}
+        />
+      )}
     </div>
   );
 }
