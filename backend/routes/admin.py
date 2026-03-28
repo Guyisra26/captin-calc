@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from db import get_db
 from auth import get_admin_user, hash_password
 
@@ -7,9 +7,9 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 class CreateUserRequest(BaseModel):
-    username: str
-    display_name: str
-    password: str
+    username: str = Field(min_length=1)
+    display_name: str = Field(min_length=1)
+    password: str = Field(min_length=1)
 
 
 @router.get("/users")
