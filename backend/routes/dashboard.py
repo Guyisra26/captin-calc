@@ -27,8 +27,8 @@ async def get_dashboard(_=Depends(get_current_user)):
             "wins_as_teamb": 0,
             "total_stake": 0.0,
             "rounds_played": 0,
-            "biggest_win": 0.0,
-            "biggest_loss": 0.0,
+            "biggest_win": None,
+            "biggest_loss": None,
             "first_double_rounds": 0,
             "first_double_wins": 0,
         }
@@ -52,13 +52,13 @@ async def get_dashboard(_=Depends(get_current_user)):
                 s["total_balance"] += change
                 s["rounds_played"] += 1
                 s["total_stake"] += r.get("final_stake", 0)
-                s["biggest_win"] = max(s["biggest_win"], change)
-                s["biggest_loss"] = min(s["biggest_loss"], change)
 
                 if change > 0:
                     s["wins"] += 1
+                    s["biggest_win"] = max(s["biggest_win"], change) if s["biggest_win"] is not None else change
                 elif change < 0:
                     s["losses"] += 1
+                    s["biggest_loss"] = min(s["biggest_loss"], change) if s["biggest_loss"] is not None else change
 
                 if pid == captain_id:
                     s["rounds_as_captain"] += 1
@@ -70,9 +70,12 @@ async def get_dashboard(_=Depends(get_current_user)):
                         s["wins_as_teamb"] += 1
 
                 if first_doubler:
+                    representative_id: str = r.get("representative_id", "")
                     is_captain = pid == captain_id
+                    is_representative = pid == representative_id
+
                     proposed = (first_doubler == "captain" and is_captain) or \
-                               (first_doubler == "teamB" and not is_captain)
+                               (first_doubler == "teamB" and is_representative)
                     if proposed:
                         s["first_double_rounds"] += 1
                         if (first_doubler == "captain" and winner == "captain") or \
