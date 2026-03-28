@@ -291,7 +291,7 @@ function App() {
 
   // Local / Host modes
   if (state.screen === 'setup') {
-    return <SetupScreen onStartGame={handleStartGame} />;
+    return <SetupScreen onStartGame={handleStartGame} onLogout={() => { setLoggedIn(false); }} />;
   }
 
   return (

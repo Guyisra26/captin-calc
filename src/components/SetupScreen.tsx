@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { api } from '../api';
 import type { PlayerSummary } from '../api';
+import { getDisplayName, clearAuth } from '../auth';
 
 interface SetupProps {
   onStartGame: (
@@ -10,6 +11,7 @@ interface SetupProps {
     initialBalances?: Record<string, number>,
     mongoIdMap?: Record<string, string>
   ) => void;
+  onLogout: () => void;
 }
 
 interface PlayerEntry {
@@ -33,7 +35,7 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
   );
 }
 
-export default function SetupScreen({ onStartGame }: SetupProps) {
+export default function SetupScreen({ onStartGame, onLogout }: SetupProps) {
   const [players, setPlayers] = useState<PlayerEntry[]>([
     { id: crypto.randomUUID(), name: '', isRegistered: true },
     { id: crypto.randomUUID(), name: '', isRegistered: true },
@@ -190,7 +192,23 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
       <div className="flex-1 flex items-center justify-center w-full p-6">
         <div className="w-full max-w-lg">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8" style={{ position: 'relative' }}>
+            <button
+              onClick={() => { clearAuth(); onLogout(); }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                background: 'none',
+                border: 'none',
+                color: 'var(--cream-dark)',
+                opacity: 0.5,
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+              }}
+            >
+              {getDisplayName()} · logout
+            </button>
             <h1
               style={{
                 fontFamily: "'Cinzel', serif",
