@@ -8,7 +8,44 @@ import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import SpectatorScreen from './components/SpectatorScreen';
 import LoginScreen from './components/LoginScreen';
-import { isLoggedIn, clearAuth } from './auth';
+import { isLoggedIn, clearAuth, getToken } from './auth';
+import { api } from './api';
+
+async function saveGameToBackend(
+  state: GameState,
+  playerMongoIds: Record<string, string>
+): Promise<void> {
+  // Resolve mongo IDs — if a player has no mongoId, skip saving
+  // (game had unregistered players with no DB entry yet)
+  const allResolved = state.players.every(p => playerMongoIds[p.id]);
+
+  // Build the player_ids list (mongo IDs)
+  const playerIds = state.players
+    .map(p => playerMongoIds[p.id])
+    .filter(Boolean);
+
+  if (playerIds.length < 2) return; // nothing to save
+
+  const rounds = state.roundHistory.map(r => ({
+    round_number: r.roundNumber,
+    captain_id: playerMongoIds[r.captainId] ?? r.captainId,
+    representative_id: playerMongoIds[r.representativeId] ?? r.representativeId,
+    winner: r.winner,
+    win_type: r.winType,
+    final_stake: r.finalPerPlayerStake,
+    doublings: r.doublings,
+    first_doubler: null as string | null, // not tracked yet
+    removed_player_ids: [], // simplified for now
+    balance_changes: Object.fromEntries(
+      Object.entries(r.balanceChanges).map(([k, v]) => [
+        playerMongoIds[k] ?? k,
+        v,
+      ])
+    ),
+  }));
+
+  await api.saveGame({ player_ids: playerIds, rounds });
+}
 
 const MAX_UNDO = 50;
 const LS_ROOM_CODE = 'captainCalc_roomCode';
@@ -155,7 +192,20 @@ function App() {
     initialBalances?: Record<string, number>,
     mongoIdMap?: Record<string, string>
   ) => {
-    if (mongoIdMap) setPlayerMongoIds(mongoIdMap);
+    if (mongoIdMap) {
+      // Register any new players (no mongoId yet) and update the map
+      const newPlayers = players.filter(p => !mongoIdMap[p.id]);
+      if (newPlayers.length > 0) {
+        Promise.all(
+          newPlayers.map(p =>
+            api.createPlayer(p.name).then(created => {
+              mongoIdMap[p.id] = created.id;
+            })
+          )
+        ).catch(console.error);
+      }
+      setPlayerMongoIds(mongoIdMap);
+    }
     dispatch({ type: 'START_GAME', players, captainId, teamBOrder, initialBalances });
   };
 
@@ -169,6 +219,9 @@ function App() {
   }, []);
 
   const handleDispatch = useCallback((action: GameAction) => {
+    if (action.type === 'RESET_GAME' && getToken() && state.roundHistory.length > 0) {
+      saveGameToBackend(state, playerMongoIds).catch(console.error);
+    }
     if (action.type === 'RESET_GAME' && mode === 'host' && roomCode) {
       deleteRoom(roomCode);
       setMode('local');
@@ -184,7 +237,7 @@ function App() {
       setLoggedIn(false);
     }
     dispatch(action);
-  }, [mode, roomCode, dispatch]);
+  }, [mode, roomCode, dispatch, state, playerMongoIds]);
 
   if (!loggedIn && mode !== 'spectator') {
     return <LoginScreen onLogin={() => setLoggedIn(true)} />;
