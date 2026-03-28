@@ -7,6 +7,7 @@ from routes.auth import router as auth_router
 from routes.players import router as players_router
 from routes.games import router as games_router
 from routes.dashboard import router as dashboard_router
+from routes.admin import router as admin_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +32,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(players_router, prefix="/api")
 app.include_router(games_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
 
 @app.get("/health")
 async def health():

@@ -33,3 +33,9 @@ def decode_token(token: str) -> str:
 
 async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> str:
     return decode_token(creds.credentials)
+
+async def get_admin_user(username: str = Depends(get_current_user)) -> str:
+    admin = os.getenv("ADMIN_USERNAME", "")
+    if not admin or username != admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return username
