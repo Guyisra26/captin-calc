@@ -28,6 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Git worktrees
+.worktrees/
+
 # Python backend
 backend/venv/
 backend/.env
