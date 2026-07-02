@@ -28,7 +28,7 @@ export default function EventLog({ events, roundNumber }: EventLogProps) {
     <div className="card">
       <h3 className="section-label" style={{ marginBottom: '0.6rem' }}>Round {roundNumber} Events</h3>
       {events.length === 0 ? (
-        <p style={{ color: 'var(--text-dim)', opacity: 0.4, fontSize: '0.9rem' }}>No events yet</p>
+        <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem' }}>No events yet</p>
       ) : (
         <div className="space-y-1.5">
           {events.map((e, i) => (

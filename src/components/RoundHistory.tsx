@@ -31,7 +31,7 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
                   R{r.roundNumber}
                 </span>
                 <span style={{ color: 'var(--text-dim)', fontSize: '0.88rem' }}>{r.captainName}</span>
-                <span style={{ color: 'var(--text-faint)', fontSize: '0.75rem', opacity: 0.6 }}>vs</span>
+                <span style={{ color: 'var(--text-faint)', fontSize: '0.75rem' }}>vs</span>
                 <span style={{ color: 'var(--text-dim)', fontSize: '0.88rem' }}>{r.representativeName}</span>
               </div>
               <div className="flex items-center gap-2">
