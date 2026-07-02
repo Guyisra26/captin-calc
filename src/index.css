@@ -382,34 +382,36 @@ body {
   }
 }
 
-/* ─── Floating Undo ─── */
-.fab-undo {
-  position: fixed;
-  right: 1rem;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  width: 56px;
-  height: 56px;
+/* ─── Header Undo chip ─── */
+.undo-chip {
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   background: var(--accent);
   color: var(--accent-ink);
   border: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  z-index: 90;
+  flex-shrink: 0;
   cursor: pointer;
-  transition: transform 0.12s ease;
+  transition: transform 0.12s ease, background 0.15s ease;
   animation: fabIn 0.18s ease both;
 }
 
-.fab-undo:active {
-  transform: scale(0.92);
+.undo-chip:active {
+  transform: scale(0.9);
 }
 
-.fab-undo:focus-visible {
+@media (hover: hover) {
+  .undo-chip:hover {
+    background: var(--accent-strong);
+  }
+}
+
+.undo-chip:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 /* ─── Modal ─── */
@@ -547,7 +549,7 @@ select.board-input {
   .pulse-dot,
   .delta-chip,
   .menu-pop,
-  .fab-undo {
+  .undo-chip {
     animation: none !important;
   }
 

@@ -53,9 +53,11 @@ any leftover reference should fail visibly during the sweep.
   no triangle border strips at screen edges.
 - Primary button: solid accent fill, dark text; secondary: outlined/ghost.
 
-### Floating Undo (UX change)
+### Header Undo chip (UX change)
 
-- Circular floating button, bottom-right corner (thumb zone), above other content.
+- Small circular accent button in the app header, next to the Round Live pill
+  (revised from the original bottom-right FAB after user feedback — always visible,
+  never covers content).
 - Visible only when `canUndo` is true; hidden in spectator mode.
 - Replaces the Undo entry in the hamburger menu (menu keeps the rest).
 
