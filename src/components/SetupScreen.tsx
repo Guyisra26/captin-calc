@@ -14,20 +14,6 @@ interface PlayerEntry {
   name: string;
 }
 
-function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
-  return (
-    <svg width="100%" height="20" viewBox={`0 0 ${count} 1`} preserveAspectRatio="none" style={{ display: 'block', flexShrink: 0 }}>
-      {Array.from({ length: count }).map((_, i) => {
-        const fill = i % 2 === 0 ? '#b8832a' : '#1e0a00';
-        const pts = flip
-          ? `${i},0 ${i + 1},0 ${i + 0.5},1`
-          : `${i},1 ${i + 1},1 ${i + 0.5},0`;
-        return <polygon key={i} points={pts} fill={fill} />;
-      })}
-    </svg>
-  );
-}
-
 function normalizeName(name: string): string {
   return name.trim().toLowerCase();
 }
@@ -154,42 +140,37 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
   const getPlayerName = (id: string) => validPlayers.find(p => p.id === id)?.name ?? '';
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center screen-shell" style={{ background: 'var(--wood-dark)', padding: 0 }}>
-      <div className="w-full">
-        <BoardPoints />
-      </div>
-
+    <div className="min-h-full flex flex-col items-center justify-center" style={{ background: 'var(--bg)', padding: 0 }}>
       <div className="flex-1 flex items-center justify-center w-full p-6">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
             <h1
               style={{
-                fontFamily: "'Cinzel', serif",
-                fontWeight: 900,
-                fontSize: 'clamp(2rem, 6vw, 3rem)',
-                color: 'var(--gold-light)',
-                letterSpacing: '0.04em',
-                textShadow: '0 2px 12px rgba(0,0,0,0.6), 0 0 40px rgba(200,150,40,0.15)',
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 'clamp(2rem, 6vw, 2.75rem)',
+                color: 'var(--text)',
+                letterSpacing: '-0.01em',
                 lineHeight: 1.1,
               }}
             >
-              Captain Tavla
+              Captain <span style={{ color: 'var(--accent)' }}>Tavla</span>
             </h1>
-            <p style={{ color: 'var(--cream-dark)', fontSize: '1.05rem', marginTop: '0.5rem', opacity: 0.7, fontStyle: 'italic' }}>
+            <p style={{ color: 'var(--text-dim)', fontSize: '1rem', marginTop: '0.5rem' }}>
               Stakes, doublings & balances
             </p>
           </div>
 
           {step === 'names' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '1rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '1rem' }}>
                 Players
               </h2>
 
               <div className="space-y-2.5 mb-4">
                 {players.map((p, i) => (
                   <div key={p.id} className="flex items-center gap-2">
-                    <span style={{ color: 'var(--gold-dark)', fontFamily: 'monospace', width: '1.4rem', textAlign: 'right', fontSize: '0.85rem' }}>{i + 1}</span>
+                    <span style={{ color: 'var(--text-faint)', fontVariantNumeric: 'tabular-nums', width: '1.4rem', textAlign: 'right', fontSize: '0.85rem' }}>{i + 1}</span>
                     <input
                       type="text"
                       value={p.name}
@@ -231,10 +212,10 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
 
           {step === 'captain' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.4rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.4rem' }}>
                 Choose Captain
               </h2>
-              <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.95rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-faint)', fontSize: '0.95rem', marginBottom: '1rem' }}>
                 Who leads Round 1?
               </p>
               <div className="grid grid-cols-2 gap-2.5">
@@ -250,13 +231,13 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
 
           {step === 'order' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.25rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
                 Team B Order
               </h2>
-              <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.9rem', marginBottom: '0.25rem' }}>
-                Captain: <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{getPlayerName(captainId)}</span>
+              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+                Captain: <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{getPlayerName(captainId)}</span>
               </p>
-              <p style={{ color: 'var(--cream-dark)', opacity: 0.5, fontSize: '0.85rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-faint)', fontSize: '0.85rem', marginBottom: '1rem' }}>
                 First player is Representative. Drag or use arrows.
               </p>
 
@@ -272,15 +253,15 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
                     className="flex items-center gap-2.5 cursor-grab active:cursor-grabbing"
                     style={{
                       padding: '0.65rem 0.85rem',
-                      borderRadius: '4px',
-                      border: i === 0 ? '1px solid var(--gold-dark)' : '1px solid rgba(255,255,255,0.08)',
-                      background: i === 0 ? 'rgba(200,150,40,0.12)' : 'rgba(0,0,0,0.25)',
+                      borderRadius: '10px',
+                      border: i === 0 ? '1px solid var(--accent-border)' : '1px solid var(--border)',
+                      background: i === 0 ? 'var(--accent-dim)' : 'var(--surface-2)',
                     }}
                   >
-                    <span style={{ color: 'var(--gold-dark)', fontFamily: 'monospace', fontSize: '0.75rem', width: '2rem', textAlign: 'right', fontWeight: 700 }}>
+                    <span style={{ color: i === 0 ? 'var(--accent)' : 'var(--text-faint)', fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem', width: '2rem', textAlign: 'right', fontWeight: 700 }}>
                       {i === 0 ? 'REP' : `#${i + 1}`}
                     </span>
-                    <span className="flex-1" style={{ fontSize: '1.05rem', color: 'var(--cream)' }}>
+                    <span className="flex-1" style={{ fontSize: '1.05rem', color: 'var(--text)' }}>
                       {getPlayerName(id)}
                     </span>
                     <div className="flex gap-1">
@@ -300,10 +281,10 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
 
           {step === 'mode' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.35rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
                 Game Mode
               </h2>
-              <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
                 Start fresh or resume with existing balances?
               </p>
 
@@ -324,17 +305,17 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
 
           {step === 'balances' && (
             <div className="card">
-              <h2 style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--cream)', marginBottom: '0.35rem', letterSpacing: '0.03em' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
                 Starting Balances
               </h2>
-              <p style={{ color: 'var(--cream-dark)', opacity: 0.6, fontSize: '0.9rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '1rem' }}>
                 Enter opening balances. Sum must be 0.
               </p>
 
               <div className="space-y-2.5 mb-3">
                 {validPlayers.map(p => (
                   <div key={p.id} className="flex items-center gap-2">
-                    <span className="flex-1" style={{ color: 'var(--cream)' }}>{p.name}</span>
+                    <span className="flex-1" style={{ color: 'var(--text)' }}>{p.name}</span>
                     <input
                       type="number"
                       step="1"
@@ -351,16 +332,16 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               <div style={{
                 marginBottom: '0.75rem',
                 padding: '0.5rem 0.75rem',
-                borderRadius: '4px',
-                background: 'rgba(0,0,0,0.25)',
-                border: `1px solid ${isBalanceValid ? 'rgba(79,200,74,0.35)' : 'rgba(224,85,85,0.35)'}`,
+                borderRadius: '10px',
+                background: 'var(--surface-2)',
+                border: `1px solid ${isBalanceValid ? 'rgba(87,201,138,0.35)' : 'rgba(224,102,108,0.4)'}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-                <span style={{ color: 'var(--cream-dark)', fontSize: '0.82rem' }}>Balance sum</span>
+                <span style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>Balance sum</span>
                 <span style={{
-                  fontFamily: 'monospace',
+                  fontVariantNumeric: 'tabular-nums',
                   fontWeight: 700,
                   color: isBalanceValid ? 'var(--color-positive)' : 'var(--color-negative)',
                 }}>
@@ -377,10 +358,6 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
             </div>
           )}
         </div>
-      </div>
-
-      <div className="w-full">
-        <BoardPoints flip />
       </div>
     </div>
   );
