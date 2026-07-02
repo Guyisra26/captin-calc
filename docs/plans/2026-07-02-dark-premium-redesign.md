@@ -6,7 +6,7 @@
 
 **Architecture:** Token-first restyle. Task 1 rewrites `src/index.css` with a new token system while **keeping all existing utility class names** (`.card`, `.btn-captain`, `.board-input`, `.badge-*`, `.top-live-pill`, `.doubling-cube`) so components restyle automatically where they use classes. Subsequent tasks sweep each component's inline styles to the new tokens and make structural changes (remove triangle strips, new header, FAB Undo). No game logic changes.
 
-**Tech Stack:** React 19, Tailwind v4 (via `@tailwindcss/vite`), plain CSS custom properties, Google Fonts (Inter + Space Grotesk).
+**Tech Stack:** React 19, Tailwind v4 (via `@tailwindcss/vite`), plain CSS custom properties, Google Fonts (Instrument Sans for body + Bricolage Grotesque for display).
 
 **Testing note:** This project has no frontend unit-test infrastructure and the change is purely presentational, so TDD does not apply. Verification per task = `npm run build` passes + visual check in a ~380px-wide browser viewport (dev server: `npm run dev` → http://localhost:5173). Final task adds grep checks that no legacy theme references remain.
 
@@ -48,7 +48,7 @@ Rule of thumb for radii: inner panels/boxes `12px`, list rows/inputs `10px`, sma
 - [ ] **Step 1: Replace the entire contents of `src/index.css` with:**
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -84,8 +84,8 @@ Rule of thumb for radii: inner panels/boxes `12px`, list rows/inputs `10px`, sma
   --violet-border: rgba(167, 139, 250, 0.38);
 
   /* fonts */
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
 }
 
 * {

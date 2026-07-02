@@ -42,7 +42,7 @@ any leftover reference should fail visibly during the sweep.
 
 ### Typography
 
-- Single modern sans (Inter or Space Grotesk via Google Fonts) — Cinzel serif removed.
+- Instrument Sans for body + Bricolage Grotesque for display headings (Google Fonts) — Cinzel serif removed. Distinctive but clean; avoids generic Inter/Space Grotesk.
 - Balances and stakes use `font-variant-numeric: tabular-nums`.
 - Hierarchy via weight and size, not decorative fonts.
 
