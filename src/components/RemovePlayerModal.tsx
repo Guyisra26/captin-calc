@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Player } from '../types';
+import { suggestAllocation } from '../removalAllocation';
 
 interface Props {
   players: Player[];
@@ -18,10 +19,21 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
 
   useEffect(() => {
     if (!selectedId || disabledSet.has(selectedId)) {
-      setSelectedId(selectablePlayers[0]?.id ?? '');
-      setAdjustments({});
+      const newId = selectablePlayers[0]?.id ?? '';
+      setSelectedId(newId);
+      if (newId) {
+        const newRemoved = players.find(p => p.id === newId);
+        const newRemaining = players.filter(p => p.id !== newId);
+        if (newRemoved) {
+          setAdjustments(suggestAllocation(newRemoved.balance, newRemaining));
+        } else {
+          setAdjustments({});
+        }
+      } else {
+        setAdjustments({});
+      }
     }
-  }, [selectedId, disabledSet, selectablePlayers]);
+  }, [selectedId, disabledSet, selectablePlayers, players]);
 
   const removedPlayer = players.find(p => p.id === selectedId);
   const remaining = players.filter(p => p.id !== selectedId);
@@ -32,10 +44,25 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
 
   const handleSelectPlayer = (id: string) => {
     setSelectedId(id);
-    setAdjustments({});
+    const newRemoved = players.find(p => p.id === id);
+    const newRemaining = players.filter(p => p.id !== id);
+    if (newRemoved) {
+      setAdjustments(suggestAllocation(newRemoved.balance, newRemaining));
+    } else {
+      setAdjustments({});
+    }
   };
 
-  const toDistribute = -(removedPlayer?.balance ?? 0);
+  // On first render, seed adjustments for the initial selectedId
+  useEffect(() => {
+    if (selectedId && removedPlayer) {
+      setAdjustments(suggestAllocation(removedPlayer.balance, remaining));
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toDistribute = removedPlayer?.balance ?? 0;
   const distributed = remaining.reduce((s, p) => s + getAdj(p.id), 0);
   const leftover = toDistribute - distributed;
 
@@ -47,36 +74,19 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.75)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 200,
-        padding: '1rem',
-      }}
+      className="modal-overlay"
       onClick={onCancel}
     >
       <div
-        style={{
-          background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
-          border: '1px solid var(--gold-dark)',
-          borderRadius: '6px',
-          padding: '1.25rem',
-          width: '100%',
-          maxWidth: '380px',
-          maxHeight: '85vh',
-          overflowY: 'auto',
-        }}
+        className="modal-card"
         onClick={e => e.stopPropagation()}
       >
         <h2
           style={{
-            fontFamily: "'Cinzel', serif",
-            color: 'var(--gold-light)',
-            fontSize: '1rem',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 600,
+            fontSize: '1.05rem',
+            color: 'var(--text)',
             marginBottom: '1rem',
           }}
         >
@@ -84,7 +94,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
         </h2>
 
         {helperText && (
-          <p style={{ color: 'var(--cream-dark)', fontSize: '0.82rem', marginBottom: '0.8rem', lineHeight: 1.4 }}>
+          <p style={{ color: 'var(--text-dim)', fontSize: '0.82rem', marginBottom: '0.8rem', lineHeight: 1.4 }}>
             {helperText}
           </p>
         )}
@@ -93,9 +103,9 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
           <div
             style={{
               padding: '0.75rem',
-              borderRadius: '4px',
-              background: 'rgba(224,85,85,0.12)',
-              border: '1px solid rgba(224,85,85,0.35)',
+              background: 'var(--negative-dim)',
+              border: '1px solid rgba(224,102,108,0.4)',
+              borderRadius: '10px',
               color: 'var(--color-negative)',
               fontSize: '0.85rem',
               marginBottom: '1rem',
@@ -105,22 +115,14 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
           </div>
         ) : (
           <>
-            <label style={{ display: 'block', color: 'var(--cream-dark)', fontSize: '0.8rem', marginBottom: '0.3rem' }}>
+            <label style={{ display: 'block', color: 'var(--text-dim)', fontSize: '0.8rem', marginBottom: '0.3rem' }}>
               Player to remove
             </label>
             <select
               value={selectedId}
               onChange={e => handleSelectPlayer(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '4px',
-                color: 'var(--cream)',
-                marginBottom: '1rem',
-                fontSize: '0.9rem',
-              }}
+              className="board-input"
+              style={{ marginBottom: '1rem' }}
             >
               {players.map(p => (
                 <option key={p.id} value={p.id} disabled={disabledSet.has(p.id)}>
@@ -132,12 +134,12 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
             {removedPlayer && (
               <>
                 {toDistribute !== 0 && (
-                  <p style={{ color: 'var(--cream-dark)', fontSize: '0.82rem', marginBottom: '0.75rem', lineHeight: 1.4 }}>
+                  <p style={{ color: 'var(--text-dim)', fontSize: '0.82rem', marginBottom: '0.75rem', lineHeight: 1.4 }}>
                     {removedPlayer.name}'s balance of{' '}
                     <strong style={{ color: removedPlayer.balance > 0 ? 'var(--color-positive)' : 'var(--color-negative)' }}>
                       {removedPlayer.balance > 0 ? '+' : ''}{removedPlayer.balance}
                     </strong>{' '}
-                    must be distributed to remaining players (sum must reach 0).
+                    is settled by the players below (as if they already paid it out).
                   </p>
                 )}
 
@@ -150,10 +152,10 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                         alignItems: 'center',
                         gap: '0.5rem',
                         padding: '0.3rem 0',
-                        borderBottom: '1px solid rgba(255,255,255,0.05)',
+                        borderBottom: '1px solid var(--border)',
                       }}
                     >
-                      <span style={{ flex: 1, color: 'var(--cream)', fontSize: '0.9rem' }}>
+                      <span style={{ flex: 1, color: 'var(--text)', fontSize: '0.9rem' }}>
                         {p.name}
                         <span style={{ opacity: 0.4, fontSize: '0.78rem', marginLeft: '0.3rem' }}>
                           ({p.balance > 0 ? '+' : ''}{p.balance})
@@ -163,9 +165,9 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                         onClick={() => setAdj(p.id, getAdj(p.id) - 1)}
                         style={{
                           padding: '0.2rem 0.6rem',
-                          background: 'rgba(224,85,85,0.2)',
-                          border: '1px solid rgba(224,85,85,0.4)',
-                          borderRadius: '3px',
+                          background: 'var(--negative-dim)',
+                          border: '1px solid rgba(224,102,108,0.4)',
+                          borderRadius: '8px',
                           color: 'var(--color-negative)',
                           cursor: 'pointer',
                           fontSize: '1rem',
@@ -176,12 +178,12 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                       </button>
                       <span
                         style={{
-                          fontFamily: 'monospace',
+                          fontVariantNumeric: 'tabular-nums',
                           minWidth: '2.8rem',
                           textAlign: 'center',
                           fontSize: '0.95rem',
                           fontWeight: 600,
-                          color: getAdj(p.id) > 0 ? 'var(--color-positive)' : getAdj(p.id) < 0 ? 'var(--color-negative)' : 'var(--cream-dark)',
+                          color: getAdj(p.id) > 0 ? 'var(--color-positive)' : getAdj(p.id) < 0 ? 'var(--color-negative)' : 'var(--text-dim)',
                         }}
                       >
                         {getAdj(p.id) > 0 ? '+' : ''}{getAdj(p.id)}
@@ -190,9 +192,9 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                         onClick={() => setAdj(p.id, getAdj(p.id) + 1)}
                         style={{
                           padding: '0.2rem 0.6rem',
-                          background: 'rgba(79,200,74,0.2)',
-                          border: '1px solid rgba(79,200,74,0.4)',
-                          borderRadius: '3px',
+                          background: 'var(--positive-dim)',
+                          border: '1px solid rgba(87,201,138,0.4)',
+                          borderRadius: '8px',
                           color: 'var(--color-positive)',
                           cursor: 'pointer',
                           fontSize: '1rem',
@@ -211,17 +213,17 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '0.5rem 0.75rem',
-                    background: 'rgba(0,0,0,0.25)',
-                    borderRadius: '4px',
+                    background: 'var(--surface-3)',
+                    borderRadius: '10px',
                     marginBottom: '1rem',
                   }}
                 >
-                  <span style={{ color: 'var(--cream-dark)', fontSize: '0.8rem' }}>
-                    Remaining to distribute:
+                  <span style={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}>
+                    Remaining to allocate:
                   </span>
                   <span
                     style={{
-                      fontFamily: 'monospace',
+                      fontVariantNumeric: 'tabular-nums',
                       fontWeight: 700,
                       fontSize: '1rem',
                       color: Math.abs(leftover) < 0.001 ? 'var(--color-positive)' : 'var(--color-negative)',

@@ -18,20 +18,6 @@ interface GameScreenProps {
   onEndGame?: () => void;
 }
 
-function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: number }) {
-  return (
-    <svg width="100%" height="20" viewBox={`0 0 ${count} 1`} preserveAspectRatio="none" style={{ display: 'block', flexShrink: 0 }}>
-      {Array.from({ length: count }).map((_, i) => {
-        const fill = i % 2 === 0 ? '#b8832a' : '#1e0a00';
-        const pts = flip
-          ? `${i},0 ${i + 1},0 ${i + 0.5},1`
-          : `${i},1 ${i + 1},1 ${i + 0.5},0`;
-        return <polygon key={i} points={pts} fill={fill} />;
-      })}
-    </svg>
-  );
-}
-
 export default function GameScreen({
   state,
   dispatch,
@@ -81,6 +67,15 @@ export default function GameScreen({
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [menuOpen]);
+
   const handleReset = () => {
     setMenuOpen(false);
     if (window.confirm('Reset game? All data will be lost.')) {
@@ -108,130 +103,69 @@ export default function GameScreen({
     setMenuOpen(false);
   };
 
-  const menuItemStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.6rem',
-    width: '100%',
-    padding: '0.75rem 1rem',
-    background: 'none',
-    border: 'none',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
-    color: 'var(--cream)',
-    fontFamily: "'Cinzel', serif",
-    fontSize: '0.85rem',
-    letterSpacing: '0.04em',
-    cursor: 'pointer',
-    textAlign: 'left',
-    transition: 'background 0.1s',
-  };
-
   return (
-    <div className="h-full flex flex-col screen-shell" style={{ background: 'var(--wood-darkest)' }}>
-      <BoardPoints />
-
-      <div
-        className="flex items-center justify-between px-3 py-2 shrink-0"
-        style={{
-          background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
-          borderBottom: '2px solid var(--gold-dark)',
-          position: 'relative',
-          zIndex: 30,
-        }}
-      >
+    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
+      <div className="app-header">
         <div className="flex items-center gap-2.5 min-w-0">
-          <h1
-            style={{
-              fontFamily: "'Cinzel', serif",
-              fontWeight: 900,
-              fontSize: '1.1rem',
-              color: 'var(--gold-light)',
-              letterSpacing: '0.04em',
-              textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Captain Tavla
+          <h1 className="brand">
+            Captain <span className="brand-accent">Tavla</span>
           </h1>
 
-          <span className={`top-live-pill ${roundActive ? '' : 'top-live-pill--idle'}`}>
+          <span className={`top-live-pill${roundActive ? '' : ' top-live-pill--idle'}`}>
             {roundActive && <span className="pulse-dot" />}
-            {roundActive ? 'Round Live' : 'Round Paused'}
+            {roundActive ? 'Round Live' : 'Paused'}
           </span>
           {isReadOnly && (
             <span className="top-live-pill top-live-pill--idle">Read Only</span>
           )}
+          {!isReadOnly && canUndo && (
+            <button className="undo-chip" onClick={onUndo} aria-label="Undo last action">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 14L4 9l5-5" />
+                <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {!isReadOnly && (
-          <div ref={menuRef} style={{ position: 'relative' }}>
+          <div ref={menuRef} className="relative">
             <button
+              className={`menu-toggle ${menuOpen ? 'open' : ''}`}
               onClick={() => setMenuOpen(v => !v)}
-              style={{
-                background: menuOpen ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '4px',
-                color: 'var(--gold-light)',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-                flexShrink: 0,
-                transition: 'background 0.1s',
-              }}
+              aria-label="Menu"
             >
-              {[0, 1, 2].map(i => (
-                <span
-                  key={i}
-                  style={{
-                    display: 'block',
-                    width: '18px',
-                    height: '2px',
-                    background: 'var(--gold-light)',
-                    borderRadius: '1px',
-                    transition: 'all 0.2s',
-                    ...(menuOpen && i === 0 ? { transform: 'translateY(6px) rotate(45deg)' } : {}),
-                    ...(menuOpen && i === 1 ? { opacity: 0, transform: 'scaleX(0)' } : {}),
-                    ...(menuOpen && i === 2 ? { transform: 'translateY(-6px) rotate(-45deg)' } : {}),
-                  }}
-                />
-              ))}
+              <span />
+              <span />
+              <span />
             </button>
 
             {menuOpen && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '4px',
-                  minWidth: '210px',
-                  background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
-                  border: '1px solid var(--gold-dark)',
-                  borderRadius: '4px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-                  zIndex: 100,
-                  overflow: 'hidden',
-                }}
-              >
+              <div className="menu-pop">
                 {mode === 'local' && (
                   <button
                     onClick={() => {
                       onCreateRoom();
                       setMenuOpen(false);
                     }}
-                    style={{ ...menuItemStyle, color: '#9ed17a' }}
+                    className="menu-item"
+                    style={{ color: 'var(--color-positive)' }}
                   >
                     ⚑ Share Read-Only
                   </button>
                 )}
 
                 {mode === 'host' && roomCode && (
-                  <button onClick={handleCopyLink} style={{ ...menuItemStyle, color: '#9ed17a' }}>
+                  <button onClick={handleCopyLink} className="menu-item" style={{ color: 'var(--color-positive)' }}>
                     ⎘ Copy Spectator Link
                   </button>
                 )}
@@ -242,7 +176,8 @@ export default function GameScreen({
                       onStopSharing();
                       setMenuOpen(false);
                     }}
-                    style={{ ...menuItemStyle, color: '#e0b36a' }}
+                    className="menu-item"
+                    style={{ color: 'var(--accent)' }}
                   >
                     ☐ Stop Sharing
                   </button>
@@ -253,7 +188,7 @@ export default function GameScreen({
                     setShowAddPlayer(v => !v);
                     setMenuOpen(false);
                   }}
-                  style={menuItemStyle}
+                  className="menu-item"
                 >
                   + Add Player
                 </button>
@@ -264,21 +199,11 @@ export default function GameScreen({
                       setShowRemoveModal(true);
                       setMenuOpen(false);
                     }}
-                    style={menuItemStyle}
+                    className="menu-item"
                   >
                     − Remove Player
                   </button>
                 )}
-
-                <button
-                  onClick={() => {
-                    onUndo();
-                    setMenuOpen(false);
-                  }}
-                  style={{ ...menuItemStyle, opacity: canUndo ? 1 : 0.35, pointerEvents: canUndo ? 'auto' : 'none' }}
-                >
-                  ↩ Undo
-                </button>
 
                 {onEndGame && !roundActive && (
                   <button
@@ -286,16 +211,14 @@ export default function GameScreen({
                       onEndGame();
                       setMenuOpen(false);
                     }}
-                    style={{ ...menuItemStyle, color: '#c8923a' }}
+                    className="menu-item"
+                    style={{ color: 'var(--accent)' }}
                   >
                     ⬛ End Game
                   </button>
                 )}
 
-                <button
-                  onClick={handleReset}
-                  style={{ ...menuItemStyle, color: '#e07070', borderBottom: 'none' }}
-                >
+                <button onClick={handleReset} className="menu-item" style={{ color: 'var(--color-negative)' }}>
                   ✕ New Game
                 </button>
               </div>
@@ -308,8 +231,8 @@ export default function GameScreen({
         <div
           className="px-3 py-1.5 shrink-0 flex items-center justify-between gap-2"
           style={{
-            background: 'rgba(0,0,0,0.28)',
-            borderBottom: '1px solid rgba(201,147,44,0.28)',
+            background: 'var(--surface)',
+            borderBottom: '1px solid var(--border)',
           }}
         >
           <span className="top-live-pill" style={{ whiteSpace: 'nowrap' }}>
@@ -326,7 +249,7 @@ export default function GameScreen({
       )}
 
       {showAddPlayer && !isReadOnly && (
-        <div className="px-3 py-2" style={{ background: 'var(--wood-mid)', borderBottom: '1px solid var(--gold-dark)' }}>
+        <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -362,7 +285,7 @@ export default function GameScreen({
         </div>
       )}
 
-      <div className="flex-1 overflow-auto p-3" style={{ background: 'var(--wood-dark)' }}>
+      <div className="flex-1 overflow-auto p-3" style={{ background: 'var(--bg)' }}>
         <div className="h-full flex flex-col lg:flex-row gap-3">
           <div className="lg:w-[300px] shrink-0 flex flex-col gap-3">
             <Scoreboard
@@ -380,8 +303,6 @@ export default function GameScreen({
           </div>
         </div>
       </div>
-
-      <BoardPoints flip />
 
       {showRemoveModal && !isReadOnly && (
         <RemovePlayerModal

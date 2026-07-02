@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import RoundHistory from './RoundHistory';
 
-const COLORS = ['#c8923a', '#4fc84a', '#e05555', '#5599e0', '#e0c044', '#a855f7'];
+const COLORS = ['#d4b36a', '#57c98a', '#e0666c', '#5fa8e8', '#c9d157', '#a78bfa'];
 
 interface Props {
   state: GameState;
@@ -62,47 +62,30 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
   }, [players]);
 
   const chartTooltipStyle = {
-    background: '#1e0a00',
-    border: '1px solid rgba(200,150,40,0.3)',
-    borderRadius: '4px',
-    color: '#f5e6c8',
+    background: '#1a1e27',
+    border: '1px solid rgba(255,255,255,0.16)',
+    borderRadius: '10px',
+    color: '#edf0f5',
     fontSize: '0.8rem',
   };
 
   return (
-    <div className="h-full flex flex-col screen-shell" style={{ background: 'var(--wood-darkest)' }}>
+    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
       {/* Top bar */}
-      <div
-        className="flex items-center gap-3 px-3 py-2 shrink-0"
-        style={{
-          background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
-          borderBottom: '2px solid var(--gold-dark)',
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: "'Cinzel', serif",
-            fontWeight: 900,
-            fontSize: '1.1rem',
-            color: 'var(--gold-light)',
-            letterSpacing: '0.04em',
-            flex: 1,
-          }}
-        >
-          Tavla Summary
+      <div className="app-header">
+        <h1 className="brand" style={{ flex: 1 }}>
+          Tavla <span className="brand-accent">Summary</span>
         </h1>
         <button onClick={onNewGame} className="btn btn-captain px-4 py-1.5 text-sm">
           New Game
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto p-3 space-y-4" style={{ background: 'var(--wood-dark)' }}>
+      <div className="flex-1 overflow-auto p-3 space-y-4" style={{ background: 'var(--bg)' }}>
 
         {/* Final standings table */}
         <div className="card">
-          <h2 style={{ fontFamily: "'Cinzel', serif", color: 'var(--gold)', fontSize: '0.9rem', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-            Final Standings
-          </h2>
+          <h2 className="section-label" style={{ marginBottom: '0.75rem' }}>Final Standings</h2>
           <div className="space-y-1">
             {standings.map((p, i) => (
               <div
@@ -112,19 +95,19 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '0.35rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  borderBottom: '1px solid var(--border)',
                 }}
               >
-                <span style={{ fontFamily: "'Cinzel', serif", color: 'var(--gold-dark)', fontSize: '0.85rem', minWidth: '1.4rem' }}>
+                <span style={{ color: 'var(--text-faint)', fontSize: '0.85rem', minWidth: '1.4rem', fontVariantNumeric: 'tabular-nums' }}>
                   {i + 1}.
                 </span>
-                <span style={{ flex: 1, color: 'var(--cream)', fontSize: '0.95rem' }}>{p.name}</span>
+                <span style={{ flex: 1, color: 'var(--text)', fontSize: '0.95rem' }}>{p.name}</span>
                 <span
                   style={{
-                    fontFamily: 'monospace',
+                    fontVariantNumeric: 'tabular-nums',
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: p.balance > 0 ? 'var(--color-positive)' : p.balance < 0 ? 'var(--color-negative)' : 'var(--cream-dark)',
+                    color: p.balance > 0 ? 'var(--color-positive)' : p.balance < 0 ? 'var(--color-negative)' : 'var(--text-dim)',
                   }}
                 >
                   {p.balance > 0 ? '+' : ''}{p.balance}
@@ -138,9 +121,7 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
         {/* Balance progression line chart */}
         {roundHistory.length > 0 && (
           <div className="card">
-            <h2 style={{ fontFamily: "'Cinzel', serif", color: 'var(--gold)', fontSize: '0.9rem', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-              Balance Progression
-            </h2>
+            <h2 className="section-label" style={{ marginBottom: '0.75rem' }}>Balance Progression</h2>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={lineData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
@@ -170,9 +151,7 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
         {/* Wins vs Losses bar chart */}
         {roundHistory.length > 0 && (
           <div className="card">
-            <h2 style={{ fontFamily: "'Cinzel', serif", color: 'var(--gold)', fontSize: '0.9rem', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-              Wins & Losses
-            </h2>
+            <h2 className="section-label" style={{ marginBottom: '0.75rem' }}>Wins & Losses</h2>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
@@ -180,8 +159,8 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
                 <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} allowDecimals={false} />
                 <Tooltip contentStyle={chartTooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)' }} />
-                <Bar dataKey="Wins" fill="#4fc84a" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Losses" fill="#e05555" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Wins" fill="#57c98a" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Losses" fill="#e0666c" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
