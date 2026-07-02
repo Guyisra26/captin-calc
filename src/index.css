@@ -335,6 +335,11 @@ body {
   transform: translateY(-6px) rotate(-45deg);
 }
 
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .menu-pop {
   position: absolute;
   top: 100%;
@@ -400,6 +405,11 @@ body {
 
 .fab-undo:active {
   transform: scale(0.92);
+}
+
+.fab-undo:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* ─── Modal ─── */

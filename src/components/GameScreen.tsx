@@ -67,6 +67,15 @@ export default function GameScreen({
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [menuOpen]);
+
   const handleReset = () => {
     setMenuOpen(false);
     if (window.confirm('Reset game? All data will be lost.')) {
@@ -102,7 +111,7 @@ export default function GameScreen({
             Captain <span className="brand-accent">Tavla</span>
           </h1>
 
-          <span className={`top-live-pill ${roundActive ? '' : 'top-live-pill--idle'}`}>
+          <span className={`top-live-pill${roundActive ? '' : ' top-live-pill--idle'}`}>
             {roundActive && <span className="pulse-dot" />}
             {roundActive ? 'Round Live' : 'Paused'}
           </span>
@@ -112,7 +121,7 @@ export default function GameScreen({
         </div>
 
         {!isReadOnly && (
-          <div ref={menuRef} style={{ position: 'relative' }}>
+          <div ref={menuRef} className="relative">
             <button
               className={`menu-toggle ${menuOpen ? 'open' : ''}`}
               onClick={() => setMenuOpen(v => !v)}
