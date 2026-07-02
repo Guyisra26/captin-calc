@@ -215,7 +215,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.4rem' }}>
                 Choose Captain
               </h2>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.95rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', marginBottom: '1rem' }}>
                 Who leads Round 1?
               </p>
               <div className="grid grid-cols-2 gap-2.5">
@@ -234,10 +234,10 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
                 Team B Order
               </h2>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
                 Captain: <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{getPlayerName(captainId)}</span>
               </p>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem', marginBottom: '1rem' }}>
                 First player is Representative. Drag or use arrows.
               </p>
 
@@ -284,7 +284,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
                 Game Mode
               </h2>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
                 Start fresh or resume with existing balances?
               </p>
 
@@ -295,7 +295,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
                 </button>
                 <button onClick={() => setStep('balances')} className="btn btn-ghost w-full text-lg py-5 flex-col">
                   <span>Resume Game</span>
-                  <span style={{ fontSize: '0.8rem', opacity: 0.65, fontWeight: 400 }}>Set custom opening balances</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-faint)', fontWeight: 400 }}>Set custom opening balances</span>
                 </button>
               </div>
 
@@ -308,7 +308,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.35rem' }}>
                 Starting Balances
               </h2>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', marginBottom: '1rem' }}>
                 Enter opening balances. Sum must be 0.
               </p>
 
