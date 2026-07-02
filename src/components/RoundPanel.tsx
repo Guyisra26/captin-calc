@@ -212,7 +212,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               padding: '0.5rem',
             }}
           >
-            <div style={{ fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: '0.2rem' }}>{label}</div>
+            <div className="section-label" style={{ marginBottom: '0.2rem' }}>{label}</div>
             <div style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: '1.6rem', color }}>{value}</div>
           </div>
         ))}

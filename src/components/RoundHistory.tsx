@@ -66,13 +66,12 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
                   borderLeft: '2px solid var(--accent-border)',
                   fontSize: '0.82rem',
                   color: 'var(--text-dim)',
-                  opacity: 0.75,
                 }}
               >
                 <p>Stake: {r.finalPerPlayerStake}/player · {r.doublings} doublings</p>
                 {r.removals.length > 0 && <p>Removed: {r.removals.join(', ')}</p>}
                 {r.events.map((e, i) => (
-                  <p key={i} style={{ opacity: 0.7 }}>{e.description}</p>
+                  <p key={i} style={{ color: 'var(--text-faint)' }}>{e.description}</p>
                 ))}
 
                 {r.standingsAfter && r.standingsAfter.length > 0 && (
