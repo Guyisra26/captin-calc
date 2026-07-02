@@ -393,9 +393,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         if (removingActiveB && activeRound.activeBPlayerIds.length <= 1) return state;
       }
 
-      // Validate zero-sum: adjustments must exactly cancel removed player's balance
+      // Absorption: adjustments must sum to the removed player's balance so the
+      // remaining players (whose balances sum to -B) return to zero-sum.
       const adjustmentSum = Object.values(balanceAdjustments).reduce((a, b) => a + b, 0);
-      if (Math.abs(adjustmentSum + removedPlayer.balance) > 0.001) return state;
+      if (Math.abs(adjustmentSum - removedPlayer.balance) > 0.001) return state;
 
       const newPlayers = state.players
         .filter(p => p.id !== playerId)

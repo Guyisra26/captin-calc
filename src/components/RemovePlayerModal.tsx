@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Player } from '../types';
+import { suggestAllocation } from '../removalAllocation';
 
 interface Props {
   players: Player[];
@@ -18,10 +19,21 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
 
   useEffect(() => {
     if (!selectedId || disabledSet.has(selectedId)) {
-      setSelectedId(selectablePlayers[0]?.id ?? '');
-      setAdjustments({});
+      const newId = selectablePlayers[0]?.id ?? '';
+      setSelectedId(newId);
+      if (newId) {
+        const newRemoved = players.find(p => p.id === newId);
+        const newRemaining = players.filter(p => p.id !== newId);
+        if (newRemoved) {
+          setAdjustments(suggestAllocation(newRemoved.balance, newRemaining));
+        } else {
+          setAdjustments({});
+        }
+      } else {
+        setAdjustments({});
+      }
     }
-  }, [selectedId, disabledSet, selectablePlayers]);
+  }, [selectedId, disabledSet, selectablePlayers, players]);
 
   const removedPlayer = players.find(p => p.id === selectedId);
   const remaining = players.filter(p => p.id !== selectedId);
@@ -32,10 +44,25 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
 
   const handleSelectPlayer = (id: string) => {
     setSelectedId(id);
-    setAdjustments({});
+    const newRemoved = players.find(p => p.id === id);
+    const newRemaining = players.filter(p => p.id !== id);
+    if (newRemoved) {
+      setAdjustments(suggestAllocation(newRemoved.balance, newRemaining));
+    } else {
+      setAdjustments({});
+    }
   };
 
-  const toDistribute = -(removedPlayer?.balance ?? 0);
+  // On first render, seed adjustments for the initial selectedId
+  useEffect(() => {
+    if (selectedId && removedPlayer) {
+      setAdjustments(suggestAllocation(removedPlayer.balance, remaining));
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toDistribute = removedPlayer?.balance ?? 0;
   const distributed = remaining.reduce((s, p) => s + getAdj(p.id), 0);
   const leftover = toDistribute - distributed;
 
@@ -112,7 +139,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                     <strong style={{ color: removedPlayer.balance > 0 ? 'var(--color-positive)' : 'var(--color-negative)' }}>
                       {removedPlayer.balance > 0 ? '+' : ''}{removedPlayer.balance}
                     </strong>{' '}
-                    must be distributed to remaining players (sum must reach 0).
+                    is settled by the players below (as if they already paid it out).
                   </p>
                 )}
 
@@ -192,7 +219,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                   }}
                 >
                   <span style={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}>
-                    Remaining to distribute:
+                    Remaining to allocate:
                   </span>
                   <span
                     style={{
