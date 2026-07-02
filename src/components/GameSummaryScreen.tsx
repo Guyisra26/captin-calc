@@ -56,12 +56,10 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
     }));
   }, [players, roundHistory]);
 
-  // final standings sorted by net change
+  // final standings sorted by final balance (same ordering logic as live scoreboard)
   const standings = useMemo(() => {
-    return [...players]
-      .map(p => ({ ...p, net: p.balance - startingBalance[p.id] }))
-      .sort((a, b) => b.net - a.net);
-  }, [players, startingBalance]);
+    return [...players].sort((a, b) => b.balance - a.balance);
+  }, [players]);
 
   const chartTooltipStyle = {
     background: '#1e0a00',
@@ -72,7 +70,7 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--wood-darkest)' }}>
+    <div className="h-full flex flex-col screen-shell" style={{ background: 'var(--wood-darkest)' }}>
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-3 py-2 shrink-0"
@@ -91,7 +89,7 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
             flex: 1,
           }}
         >
-          ♟ Game Summary
+          Tavla Summary
         </h1>
         <button onClick={onNewGame} className="btn btn-captain px-4 py-1.5 text-sm">
           New Game
@@ -126,14 +124,12 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
                     fontFamily: 'monospace',
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: p.net > 0 ? 'var(--color-positive)' : p.net < 0 ? 'var(--color-negative)' : 'var(--cream-dark)',
+                    color: p.balance > 0 ? 'var(--color-positive)' : p.balance < 0 ? 'var(--color-negative)' : 'var(--cream-dark)',
                   }}
                 >
-                  {p.net > 0 ? '+' : ''}{p.net}
+                  {p.balance > 0 ? '+' : ''}{p.balance}
                 </span>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: 'var(--cream-dark)', opacity: 0.45 }}>
-                  (bal: {p.balance > 0 ? '+' : ''}{p.balance})
-                </span>
+
               </div>
             ))}
           </div>

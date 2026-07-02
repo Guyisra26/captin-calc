@@ -1,21 +1,54 @@
-import { ref, set, onValue, remove } from 'firebase/database';
-import { db } from './firebase';
 import type { GameState } from './types';
 
+const DB_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL as string;
+const POLL_INTERVAL_MS = 2000;
+
 export function writeRoom(roomCode: string, state: GameState): void {
-  set(ref(db, `rooms/${roomCode}/state`), state);
+  if (!DB_URL) return;
+  // Double-encode as string so Firebase doesn't convert arrays to indexed objects
+  fetch(`${DB_URL}/rooms/${roomCode}/state.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(JSON.stringify(state)),
+  }).catch(err => console.error('Firebase write error:', err));
 }
 
 export function subscribeRoom(
   roomCode: string,
   callback: (state: GameState | null) => void
 ): () => void {
-  const r = ref(db, `rooms/${roomCode}/state`);
-  return onValue(r, (snapshot) => {
-    callback(snapshot.exists() ? (snapshot.val() as GameState) : null);
-  });
+  if (!DB_URL) {
+    callback(null);
+    return () => {};
+  }
+
+  let stopped = false;
+
+  const poll = async () => {
+    if (stopped) return;
+    try {
+      const res = await fetch(`${DB_URL}/rooms/${roomCode}/state.json`);
+      if (!res.ok) {
+        console.error('Firebase REST error:', res.status, res.statusText);
+      } else {
+        const raw = await res.json();
+        // raw is a JSON string (double-encoded) or null
+        callback(raw ? JSON.parse(raw as string) as GameState : null);
+      }
+    } catch (error) {
+      console.error('Firebase poll error:', error);
+    }
+    if (!stopped) setTimeout(poll, POLL_INTERVAL_MS);
+  };
+
+  poll();
+
+  return () => { stopped = true; };
 }
 
 export function deleteRoom(roomCode: string): void {
-  remove(ref(db, `rooms/${roomCode}`));
+  if (!DB_URL) return;
+  fetch(`${DB_URL}/rooms/${roomCode}.json`, {
+    method: 'DELETE',
+  }).catch(err => console.error('Firebase delete error:', err));
 }

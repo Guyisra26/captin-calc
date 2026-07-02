@@ -30,6 +30,12 @@ export interface RoundState {
   startBalances: Record<string, number>; // player balances at the moment this round started
 }
 
+export interface RoundStanding {
+  playerId: string;
+  name: string;
+  balance: number;
+}
+
 export interface RoundSummary {
   roundNumber: number;
   captainId: string;
@@ -42,6 +48,7 @@ export interface RoundSummary {
   doublings: number;
   removals: string[]; // removed player names
   balanceChanges: Record<string, number>; // playerId -> change
+  standingsAfter?: RoundStanding[]; // table snapshot right after this round
   events: RoundEvent[];
 }
 

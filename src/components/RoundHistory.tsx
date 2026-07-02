@@ -87,6 +87,47 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
                 {r.events.map((e, i) => (
                   <p key={i} style={{ opacity: 0.7 }}>{e.description}</p>
                 ))}
+
+                {r.standingsAfter && r.standingsAfter.length > 0 && (
+                  <div style={{ marginTop: '0.45rem' }}>
+                    <p
+                      style={{
+                        fontFamily: "'Cinzel', serif",
+                        fontSize: '0.66rem',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        color: 'var(--gold-light)',
+                        marginBottom: '0.25rem',
+                      }}
+                    >
+                      Table After Round
+                    </p>
+                    <div className="space-y-0.5" style={{ opacity: 0.92 }}>
+                      {r.standingsAfter.map((s, idx) => (
+                        <div key={s.playerId} className="flex items-center justify-between" style={{ fontSize: '0.8rem' }}>
+                          <span>
+                            <span style={{ color: 'var(--gold-dark)', fontFamily: 'monospace', marginRight: '0.35rem' }}>{idx + 1}.</span>
+                            <span style={{ color: 'var(--cream)' }}>{s.name}</span>
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'monospace',
+                              fontWeight: 700,
+                              color:
+                                s.balance > 0
+                                  ? 'var(--color-positive)'
+                                  : s.balance < 0
+                                  ? 'var(--color-negative)'
+                                  : 'var(--cream-dark)',
+                            }}
+                          >
+                            {s.balance > 0 ? '+' : ''}{s.balance}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

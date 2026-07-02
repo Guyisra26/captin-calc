@@ -1,4 +1,5 @@
 import os
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
@@ -16,7 +17,7 @@ async def connect_db():
     mongo_url = os.getenv("MONGO_URL")
     if not mongo_url:
         raise RuntimeError("MONGO_URL environment variable is not set")
-    _client = AsyncIOMotorClient(mongo_url)
+    _client = AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 
 async def close_db():
     global _client

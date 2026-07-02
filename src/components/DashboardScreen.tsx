@@ -161,7 +161,7 @@ export default function DashboardScreen({ onBack }: Props) {
           letterSpacing: '0.04em',
           textShadow: '0 1px 4px rgba(0,0,0,0.5)',
         }}>
-          ♟ Dashboard
+          Tavla Dashboard
         </h1>
       </div>
 

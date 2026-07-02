@@ -5,10 +5,12 @@ import asyncio
 import os
 import getpass
 from dotenv import load_dotenv
-from motor.motor_asyncio import AsyncIOMotorClient
-from auth import hash_password
 
 load_dotenv()
+
+import certifi
+from motor.motor_asyncio import AsyncIOMotorClient
+from auth import hash_password
 
 async def main():
     if len(sys.argv) != 3:
@@ -20,7 +22,7 @@ async def main():
     if not mongo_url:
         print("Error: MONGO_URL not set in .env")
         sys.exit(1)
-    client = AsyncIOMotorClient(mongo_url)
+    client = AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
     db = client[os.getenv("MONGO_DB", "captincalc")]
     existing = await db.users.find_one({"username": username})
     if existing:

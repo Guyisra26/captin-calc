@@ -44,7 +44,7 @@ export default function LoginScreen({ onLogin }: Props) {
             letterSpacing: '0.04em',
           }}
         >
-          ♟ Captain
+          Captain Tavla
         </h1>
 
         <form onSubmit={handleSubmit} className="card space-y-4">

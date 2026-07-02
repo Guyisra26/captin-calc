@@ -10,6 +10,8 @@ function createRound(
 ): RoundState {
   const teamBOrder = state.teamBOrder;
   const representativeId = teamBOrder[0];
+  const startBalances: Record<string, number> = {};
+  for (const p of state.players) startBalances[p.id] = p.balance;
 
   return {
     roundNumber,
@@ -26,6 +28,7 @@ function createRound(
     canPivot: false,
     events: [],
     isComplete: false,
+    startBalances,
   };
 }
 
@@ -290,6 +293,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         description: `${winnerLabel} wins${marsLabel}! Stake: ${stake} × ${activeCount} active players`,
       };
 
+      const standingsAfter = [...players]
+        .sort((a, b) => b.balance - a.balance)
+        .map(p => ({
+          playerId: p.id,
+          name: p.name,
+          balance: p.balance,
+        }));
+
       const roundSummary: RoundSummary = {
         roundNumber: round.roundNumber,
         captainId: round.captainId,
@@ -302,14 +313,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         doublings: round.doublingCount,
         removals: round.removedBPlayerIds.map(id => getPlayerName(state.players, id)),
         balanceChanges,
+        standingsAfter,
         events: [...round.events, resolutionEvent],
       };
 
       // Captain rotation
       let newCaptainId: string;
       let newTeamBOrder: string[];
-
-      const lateSet = new Set(state.lateJoiners);
 
       if (captainWins) {
         // Captain stays. Next representative = next in Team B order
@@ -333,14 +343,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         newTeamBOrder.push(oldCaptainId);
       }
 
-      // Position late joiners at the end for their first round, then clear them
-      // so they rotate normally from the next round onward (prevents starvation)
-      if (lateSet.size > 0) {
-        const regular = newTeamBOrder.filter(id => !lateSet.has(id));
-        const late = newTeamBOrder.filter(id => lateSet.has(id));
-        newTeamBOrder = [...regular, ...late];
-      }
-
       const completedRound = {
         ...round,
         isComplete: true,
@@ -359,8 +361,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'ADD_PLAYER': {
+      const trimmedName = action.name.trim();
+      if (!trimmedName) return state;
+      const normalized = trimmedName.toLowerCase();
+      if (state.players.some(p => p.name.trim().toLowerCase() === normalized)) return state;
+
       const id = crypto.randomUUID();
-      const newPlayer: Player = { id, name: action.name, balance: 0 };
+      const newPlayer: Player = { id, name: trimmedName, balance: 0 };
       return {
         ...state,
         players: [...state.players, newPlayer],
@@ -371,12 +378,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'REMOVE_PLAYER': {
-      // Only allowed between rounds
-      if (state.currentRound && !state.currentRound.isComplete) return state;
-
       const { playerId, balanceAdjustments } = action;
       const removedPlayer = state.players.find(p => p.id === playerId);
       if (!removedPlayer) return state;
+      if (state.players.length <= 2) return state;
+
+      const activeRound =
+        state.currentRound && !state.currentRound.isComplete ? state.currentRound : null;
+
+      if (activeRound) {
+        // Keep active round stable: captain and last active Team B player are locked.
+        if (playerId === activeRound.captainId) return state;
+        const removingActiveB = activeRound.activeBPlayerIds.includes(playerId);
+        if (removingActiveB && activeRound.activeBPlayerIds.length <= 1) return state;
+      }
 
       // Validate zero-sum: adjustments must exactly cancel removed player's balance
       const adjustmentSum = Object.values(balanceAdjustments).reduce((a, b) => a + b, 0);
@@ -396,12 +411,38 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newCaptainId =
         state.captainId === playerId ? (newTeamBOrder[0] ?? '') : state.captainId;
 
+      let newCurrentRound = state.currentRound;
+      if (activeRound) {
+        const nextTeamBOrder = activeRound.teamBOrder.filter(id => id !== playerId);
+        const nextActiveB = activeRound.activeBPlayerIds.filter(id => id !== playerId);
+        const nextRemovedB = activeRound.removedBPlayerIds.filter(id => id !== playerId);
+
+        let nextRepresentativeId = activeRound.representativeId;
+        if (playerId === activeRound.representativeId) {
+          nextRepresentativeId = nextActiveB[0] ?? nextTeamBOrder[0] ?? activeRound.representativeId;
+        }
+
+        const nextStartBalances = { ...activeRound.startBalances };
+        delete nextStartBalances[playerId];
+
+        newCurrentRound = {
+          ...activeRound,
+          teamBOrder: nextTeamBOrder,
+          activeBPlayerIds: nextActiveB,
+          removedBPlayerIds: nextRemovedB,
+          representativeId: nextRepresentativeId,
+          canRemove: activeRound.canRemove && nextActiveB.length > 1,
+          startBalances: nextStartBalances,
+        };
+      }
+
       return {
         ...state,
         players: newPlayers,
         teamBOrder: newTeamBOrder,
         captainId: newCaptainId,
         lateJoiners: state.lateJoiners.filter(id => id !== playerId),
+        currentRound: newCurrentRound,
       };
     }
 

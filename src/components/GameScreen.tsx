@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import type { GameState, GameAction } from '../types';
+import type { GameState, GameAction, AppMode } from '../types';
 import Scoreboard from './Scoreboard';
 import RoundPanel from './RoundPanel';
 import EventLog from './EventLog';
@@ -11,11 +11,10 @@ interface GameScreenProps {
   dispatch: React.Dispatch<GameAction>;
   onUndo: () => void;
   canUndo: boolean;
-  mode: 'local' | 'host' | 'spectator';
+  mode: AppMode;
   roomCode: string | null;
   onCreateRoom: () => void;
-  onOpenDashboard: () => void;
-  onOpenAdmin?: () => void;
+  onStopSharing: () => void;
   onEndGame?: () => void;
 }
 
@@ -33,7 +32,17 @@ function BoardPoints({ flip = false, count = 16 }: { flip?: boolean; count?: num
   );
 }
 
-export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roomCode, onCreateRoom, onOpenDashboard, onOpenAdmin, onEndGame }: GameScreenProps) {
+export default function GameScreen({
+  state,
+  dispatch,
+  onUndo,
+  canUndo,
+  mode,
+  roomCode,
+  onCreateRoom,
+  onStopSharing,
+  onEndGame,
+}: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -41,10 +50,26 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const isReadOnly = mode === 'spectator';
   const roundActive = round !== null && !round.isComplete;
   const roundStartBalances = state.currentRound?.startBalances ?? {};
 
-  // Close menu on outside click
+  const normalizedExisting = new Set(state.players.map(p => p.name.trim().toLowerCase()));
+  const candidateName = newPlayerName.trim().toLowerCase();
+  const duplicateName = candidateName.length > 0 && normalizedExisting.has(candidateName);
+
+  const disabledRemovalIds = new Set<string>();
+  if (roundActive && round) {
+    disabledRemovalIds.add(round.captainId);
+    if (round.activeBPlayerIds.length <= 1) {
+      for (const id of round.activeBPlayerIds) disabledRemovalIds.add(id);
+    }
+  }
+
+  const removalHelperText = roundActive
+    ? 'During an active round, captain and the last active Team B player cannot be removed.'
+    : undefined;
+
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -65,16 +90,21 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
 
   const handleAddPlayer = () => {
     const name = newPlayerName.trim();
-    if (!name) return;
+    if (!name || duplicateName) return;
     dispatch({ type: 'ADD_PLAYER', name });
     setNewPlayerName('');
     setShowAddPlayer(false);
   };
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     if (!roomCode) return;
     const url = `${window.location.origin}/?room=${roomCode}`;
-    navigator.clipboard.writeText(url);
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Spectator link copied');
+    } catch {
+      alert(url);
+    }
     setMenuOpen(false);
   };
 
@@ -97,22 +127,19 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--wood-darkest)' }}>
-
-      {/* Triangle strip — top */}
+    <div className="h-full flex flex-col screen-shell" style={{ background: 'var(--wood-darkest)' }}>
       <BoardPoints />
 
-      {/* Top Bar */}
       <div
         className="flex items-center justify-between px-3 py-2 shrink-0"
         style={{
           background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
           borderBottom: '2px solid var(--gold-dark)',
           position: 'relative',
+          zIndex: 30,
         }}
       >
-        {/* Left: title + live badges */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <h1
             style={{
               fontFamily: "'Cinzel', serif",
@@ -124,47 +151,19 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
               whiteSpace: 'nowrap',
             }}
           >
-            ♟ Captain
+            Captain Tavla
           </h1>
 
-          {mode === 'spectator' && roomCode && (
-            <span
-              className="flex items-center gap-1 px-2 py-0.5"
-              style={{
-                background: 'rgba(180,40,40,0.2)',
-                color: '#e07070',
-                border: '1px solid rgba(180,40,40,0.4)',
-                borderRadius: '2px',
-                fontFamily: "'Cinzel', serif",
-                fontSize: '0.7rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-              LIVE · {roomCode}
-            </span>
-          )}
-
-          {mode === 'host' && roomCode && (
-            <span
-              style={{
-                background: 'rgba(90,160,50,0.15)',
-                color: '#7ac858',
-                border: '1px solid rgba(90,160,50,0.35)',
-                borderRadius: '2px',
-                fontFamily: "'Cinzel', serif",
-                fontSize: '0.7rem',
-                padding: '0.15rem 0.5rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              ⚑ {roomCode}
-            </span>
+          <span className={`top-live-pill ${roundActive ? '' : 'top-live-pill--idle'}`}>
+            {roundActive && <span className="pulse-dot" />}
+            {roundActive ? 'Round Live' : 'Round Paused'}
+          </span>
+          {isReadOnly && (
+            <span className="top-live-pill top-live-pill--idle">Read Only</span>
           )}
         </div>
 
-        {/* Right: hamburger menu */}
-        {mode !== 'spectator' && (
+        {!isReadOnly && (
           <div ref={menuRef} style={{ position: 'relative' }}>
             <button
               onClick={() => setMenuOpen(v => !v)}
@@ -185,16 +184,24 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                 transition: 'background 0.1s',
               }}
             >
-              {[0,1,2].map(i => (
-                <span key={i} style={{ display: 'block', width: '18px', height: '2px', background: 'var(--gold-light)', borderRadius: '1px', transition: 'all 0.2s',
-                  ...(menuOpen && i === 0 ? { transform: 'translateY(6px) rotate(45deg)' } : {}),
-                  ...(menuOpen && i === 1 ? { opacity: 0, transform: 'scaleX(0)' } : {}),
-                  ...(menuOpen && i === 2 ? { transform: 'translateY(-6px) rotate(-45deg)' } : {}),
-                }} />
+              {[0, 1, 2].map(i => (
+                <span
+                  key={i}
+                  style={{
+                    display: 'block',
+                    width: '18px',
+                    height: '2px',
+                    background: 'var(--gold-light)',
+                    borderRadius: '1px',
+                    transition: 'all 0.2s',
+                    ...(menuOpen && i === 0 ? { transform: 'translateY(6px) rotate(45deg)' } : {}),
+                    ...(menuOpen && i === 1 ? { opacity: 0, transform: 'scaleX(0)' } : {}),
+                    ...(menuOpen && i === 2 ? { transform: 'translateY(-6px) rotate(-45deg)' } : {}),
+                  }}
+                />
               ))}
             </button>
 
-            {/* Dropdown */}
             {menuOpen && (
               <div
                 style={{
@@ -202,7 +209,7 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
                   top: '100%',
                   right: 0,
                   marginTop: '4px',
-                  minWidth: '180px',
+                  minWidth: '210px',
                   background: 'linear-gradient(180deg, var(--wood-mid) 0%, var(--wood-dark) 100%)',
                   border: '1px solid var(--gold-dark)',
                   borderRadius: '4px',
@@ -213,59 +220,78 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
               >
                 {mode === 'local' && (
                   <button
-                    onClick={() => { onCreateRoom(); setMenuOpen(false); }}
-                    style={{ ...menuItemStyle, color: '#7ac858', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+                    onClick={() => {
+                      onCreateRoom();
+                      setMenuOpen(false);
+                    }}
+                    style={{ ...menuItemStyle, color: '#9ed17a' }}
                   >
-                    ⚑ Share / Create Room
+                    ⚑ Share Read-Only
                   </button>
                 )}
+
                 {mode === 'host' && roomCode && (
-                  <button onClick={handleCopyLink} style={{ ...menuItemStyle, color: '#7ac858' }}>
+                  <button onClick={handleCopyLink} style={{ ...menuItemStyle, color: '#9ed17a' }}>
                     ⎘ Copy Spectator Link
                   </button>
                 )}
-                {onOpenAdmin && (
+
+                {mode === 'host' && (
                   <button
-                    onClick={() => { onOpenAdmin(); setMenuOpen(false); }}
-                    style={{ ...menuItemStyle, color: 'var(--gold-light)' }}
+                    onClick={() => {
+                      onStopSharing();
+                      setMenuOpen(false);
+                    }}
+                    style={{ ...menuItemStyle, color: '#e0b36a' }}
                   >
-                    ⚙ Admin
+                    ☐ Stop Sharing
                   </button>
                 )}
+
                 <button
-                  onClick={() => { onOpenDashboard(); setMenuOpen(false); }}
-                  style={menuItemStyle}
-                >
-                  📊 Dashboard
-                </button>
-                <button
-                  onClick={() => { setShowAddPlayer(v => !v); setMenuOpen(false); }}
+                  onClick={() => {
+                    setShowAddPlayer(v => !v);
+                    setMenuOpen(false);
+                  }}
                   style={menuItemStyle}
                 >
                   + Add Player
                 </button>
-                {!roundActive && state.players.length > 1 && (
+
+                {state.players.length > 2 && (
                   <button
-                    onClick={() => { setShowRemoveModal(true); setMenuOpen(false); }}
+                    onClick={() => {
+                      setShowRemoveModal(true);
+                      setMenuOpen(false);
+                    }}
                     style={menuItemStyle}
                   >
                     − Remove Player
                   </button>
                 )}
+
                 <button
-                  onClick={() => { onUndo(); setMenuOpen(false); }}
+                  onClick={() => {
+                    onUndo();
+                    setMenuOpen(false);
+                  }}
                   style={{ ...menuItemStyle, opacity: canUndo ? 1 : 0.35, pointerEvents: canUndo ? 'auto' : 'none' }}
                 >
                   ↩ Undo
                 </button>
+
                 {onEndGame && !roundActive && (
                   <button
-                    onClick={() => { onEndGame(); setMenuOpen(false); }}
+                    onClick={() => {
+                      onEndGame();
+                      setMenuOpen(false);
+                    }}
                     style={{ ...menuItemStyle, color: '#c8923a' }}
                   >
                     ⬛ End Game
                   </button>
                 )}
+
                 <button
                   onClick={handleReset}
                   style={{ ...menuItemStyle, color: '#e07070', borderBottom: 'none' }}
@@ -278,38 +304,64 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
         )}
       </div>
 
-      {/* Add Player Inline */}
-      {showAddPlayer && mode !== 'spectator' && (
+      {mode === 'host' && roomCode && (
         <div
-          className="px-3 py-2 flex items-center gap-2"
-          style={{ background: 'var(--wood-mid)', borderBottom: '1px solid var(--gold-dark)' }}
+          className="px-3 py-1.5 shrink-0 flex items-center justify-between gap-2"
+          style={{
+            background: 'rgba(0,0,0,0.28)',
+            borderBottom: '1px solid rgba(201,147,44,0.28)',
+          }}
         >
-          <input
-            type="text"
-            value={newPlayerName}
-            onChange={e => setNewPlayerName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAddPlayer()}
-            placeholder="Player name"
-            className="board-input flex-1"
-            style={{ padding: '0.5rem 0.75rem' }}
-            autoFocus
-          />
+          <span className="top-live-pill" style={{ whiteSpace: 'nowrap' }}>
+            Sharing Code: {roomCode}
+          </span>
           <button
-            onClick={handleAddPlayer}
-            className={`btn btn-captain px-4 py-1.5 text-sm ${!newPlayerName.trim() ? 'btn-disabled' : ''}`}
+            onClick={handleCopyLink}
+            className="btn btn-ghost px-3 py-1 text-xs"
+            style={{ minHeight: '32px' }}
           >
-            Add
-          </button>
-          <button
-            onClick={() => { setShowAddPlayer(false); setNewPlayerName(''); }}
-            className="btn btn-ghost px-3 py-1.5 text-sm"
-          >
-            Cancel
+            Copy Link
           </button>
         </div>
       )}
 
-      {/* Main Layout */}
+      {showAddPlayer && !isReadOnly && (
+        <div className="px-3 py-2" style={{ background: 'var(--wood-mid)', borderBottom: '1px solid var(--gold-dark)' }}>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={newPlayerName}
+              onChange={e => setNewPlayerName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddPlayer()}
+              placeholder="Player name"
+              className="board-input flex-1"
+              style={{ padding: '0.5rem 0.75rem' }}
+              autoFocus
+            />
+            <button
+              onClick={handleAddPlayer}
+              className={`btn btn-captain px-4 py-1.5 text-sm ${!newPlayerName.trim() || duplicateName ? 'btn-disabled' : ''}`}
+            >
+              Add
+            </button>
+            <button
+              onClick={() => {
+                setShowAddPlayer(false);
+                setNewPlayerName('');
+              }}
+              className="btn btn-ghost px-3 py-1.5 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+          {duplicateName && (
+            <p style={{ marginTop: '0.4rem', color: 'var(--color-negative)', fontSize: '0.82rem' }}>
+              A player with this name already exists.
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="flex-1 overflow-auto p-3" style={{ background: 'var(--wood-dark)' }}>
         <div className="h-full flex flex-col lg:flex-row gap-3">
           <div className="lg:w-[300px] shrink-0 flex flex-col gap-3">
@@ -323,20 +375,19 @@ export default function GameScreen({ state, dispatch, onUndo, canUndo, mode, roo
             <RoundHistory history={state.roundHistory} />
           </div>
           <div className="flex-1 flex flex-col gap-3">
-            <RoundPanel state={state} dispatch={dispatch} isReadOnly={mode === 'spectator'} />
-            {round && (
-              <EventLog events={round.events} roundNumber={round.roundNumber} />
-            )}
+            <RoundPanel state={state} dispatch={dispatch} isReadOnly={isReadOnly} />
+            {round && <EventLog events={round.events} roundNumber={round.roundNumber} />}
           </div>
         </div>
       </div>
 
-      {/* Triangle strip — bottom */}
       <BoardPoints flip />
 
-      {showRemoveModal && (
+      {showRemoveModal && !isReadOnly && (
         <RemovePlayerModal
           players={state.players}
+          disabledPlayerIds={[...disabledRemovalIds]}
+          helperText={removalHelperText}
           onConfirm={(playerId, balanceAdjustments) => {
             dispatch({ type: 'REMOVE_PLAYER', playerId, balanceAdjustments });
             setShowRemoveModal(false);

@@ -1,52 +1,12 @@
-import { useState, useReducer, useEffect, useCallback, useRef } from 'react';
+import { useReducer, useEffect, useCallback, useRef, useState } from 'react';
 import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
-import { logGameStart, logRoomCode, logRoundComplete, logGameEnded } from './firebaseLog';
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
-import SpectatorScreen from './components/SpectatorScreen';
-import LoginScreen from './components/LoginScreen';
-import DashboardScreen from './components/DashboardScreen';
-import AdminScreen from './components/AdminScreen';
 import GameSummaryScreen from './components/GameSummaryScreen';
-import { isLoggedIn, getToken, getDisplayName } from './auth';
-import { api } from './api';
-
-async function saveGameToBackend(
-  state: GameState,
-  playerMongoIds: Record<string, string>
-): Promise<void> {
-  // Resolve mongo IDs — if a player has no mongoId, skip saving
-  // (game had unregistered players with no DB entry yet)
-  // Build the player_ids list (mongo IDs)
-  const playerIds = state.players
-    .map(p => playerMongoIds[p.id])
-    .filter(Boolean);
-
-  if (playerIds.length < 2) return; // nothing to save
-
-  const rounds = state.roundHistory.map(r => ({
-    round_number: r.roundNumber,
-    captain_id: playerMongoIds[r.captainId] ?? r.captainId,
-    representative_id: playerMongoIds[r.representativeId] ?? r.representativeId,
-    winner: r.winner,
-    win_type: r.winType,
-    final_stake: r.finalPerPlayerStake,
-    doublings: r.doublings,
-    first_doubler: null as string | null, // not tracked yet
-    removed_player_ids: [], // simplified for now
-    balance_changes: Object.fromEntries(
-      Object.entries(r.balanceChanges).map(([k, v]) => [
-        playerMongoIds[k] ?? k,
-        v,
-      ])
-    ),
-  }));
-
-  await api.saveGame({ player_ids: playerIds, rounds });
-}
+import SpectatorScreen from './components/SpectatorScreen';
 
 const MAX_UNDO = 50;
 const LS_ROOM_CODE = 'captainCalc_roomCode';
@@ -87,34 +47,31 @@ function getRoomCodeFromURL(): string | null {
   return new URLSearchParams(window.location.search).get('room');
 }
 
-function App() {
+function AppInner() {
   const [{ current: state, history }, dispatch] = useReducer(undoReducer, null, () => {
     const saved = loadGameState();
     return { current: saved ?? initialGameState, history: [] };
   });
 
-  const canUndo = history.length > 0;
-  const prevStateRef = useRef(state);
-  const gameIdRef = useRef<string | null>(null);
-  const prevScreenRef = useRef(state.screen);
-  const roomCodeLoggedRef = useRef<string | null>(null);
-
   const urlRoom = getRoomCodeFromURL();
+
   const [mode, setMode] = useState<AppMode>(() => {
     if (urlRoom) return 'spectator';
     const savedCode = localStorage.getItem(LS_ROOM_CODE);
     if (savedCode && localStorage.getItem(LS_HOST_MODE) === 'host') return 'host';
     return 'local';
   });
+
   const [roomCode, setRoomCode] = useState<string | null>(() => {
     if (urlRoom) return urlRoom;
     return localStorage.getItem(LS_ROOM_CODE);
   });
+
   const [spectatorState, setSpectatorState] = useState<GameState | null>(null);
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
-  type View = 'game' | 'dashboard' | 'admin' | 'summary';
-  const [view, setView] = useState<View>('game');
-  const isAdmin = getDisplayName() === import.meta.env.VITE_ADMIN_USERNAME;
+  const [view, setView] = useState<'game' | 'summary'>('game');
+
+  const canUndo = history.length > 0;
+  const prevStateRef = useRef(state);
 
   useEffect(() => {
     if (state !== prevStateRef.current) {
@@ -123,7 +80,6 @@ function App() {
     }
   }, [state]);
 
-  // Persist host room code to localStorage
   useEffect(() => {
     if (mode === 'host' && roomCode) {
       localStorage.setItem(LS_ROOM_CODE, roomCode);
@@ -134,84 +90,31 @@ function App() {
     }
   }, [mode, roomCode]);
 
-  // Sync to Firebase when hosting
   useEffect(() => {
     if (mode !== 'host' || !roomCode) return;
     writeRoom(roomCode, state);
   }, [mode, roomCode, state]);
 
-  // Subscribe to Firebase when spectating
   useEffect(() => {
     if (mode !== 'spectator' || !roomCode) return;
-    const unsub = subscribeRoom(roomCode, (s) => setSpectatorState(s));
+    const unsub = subscribeRoom(roomCode, s => setSpectatorState(s));
     return () => unsub();
   }, [mode, roomCode]);
-
-  // Log game start to Firebase
-  useEffect(() => {
-    if (prevScreenRef.current === 'setup' && state.screen === 'game') {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      gameIdRef.current = Array.from(crypto.getRandomValues(new Uint8Array(8)))
-        .map(b => chars[b % chars.length])
-        .join('');
-      logGameStart(gameIdRef.current, state.players, roomCode);
-    }
-    prevScreenRef.current = state.screen;
-  }, [state.screen, state.players, roomCode]);
-
-  // Log each completed round
-  const prevRoundCountRef = useRef(0);
-  useEffect(() => {
-    const count = state.roundHistory.length;
-    if (count > prevRoundCountRef.current && gameIdRef.current) {
-      const latest = state.roundHistory[count - 1];
-      logRoundComplete(gameIdRef.current, latest);
-    }
-    prevRoundCountRef.current = count;
-  }, [state.roundHistory]);
-
-  // Log room code once per game when host room is created
-  useEffect(() => {
-    if (
-      roomCode &&
-      gameIdRef.current &&
-      state.screen === 'game' &&
-      roomCodeLoggedRef.current !== gameIdRef.current
-    ) {
-      roomCodeLoggedRef.current = gameIdRef.current;
-      logRoomCode(gameIdRef.current, roomCode);
-    }
-  }, [roomCode, state.screen]);
 
   const handleUndo = useCallback(() => {
     dispatch({ type: 'UNDO' });
   }, []);
 
-  const [playerMongoIds, setPlayerMongoIds] = useState<Record<string, string>>({});
+  const handleDispatch = useCallback((action: GameAction) => {
+    dispatch(action);
+  }, []);
 
-  const handleStartGame = async (
+  const handleStartGame = (
     players: { id: string; name: string }[],
     captainId: string,
     teamBOrder: string[],
-    initialBalances?: Record<string, number>,
-    mongoIdMap?: Record<string, string>
+    initialBalances?: Record<string, number>
   ) => {
-    if (mongoIdMap) {
-      const newPlayers = players.filter(p => !mongoIdMap[p.id]);
-      if (newPlayers.length > 0) {
-        try {
-          await Promise.all(
-            newPlayers.map(async p => {
-              const created = await api.createPlayer(p.name);
-              mongoIdMap[p.id] = created.id;
-            })
-          );
-        } catch {
-          console.error('Failed to register some players in DB');
-        }
-      }
-      setPlayerMongoIds({ ...mongoIdMap }); // spread to trigger re-render with updated values
-    }
     dispatch({ type: 'START_GAME', players, captainId, teamBOrder, initialBalances });
   };
 
@@ -224,36 +127,32 @@ function App() {
     setMode('host');
   }, []);
 
-  const handleDispatch = useCallback((action: GameAction) => {
-    if (action.type === 'RESET_GAME' && getToken() && state.roundHistory.length > 0) {
-      saveGameToBackend(state, playerMongoIds).catch(console.error);
-    }
-    if (action.type === 'RESET_GAME' && mode === 'host' && roomCode) {
-      deleteRoom(roomCode);
-      setMode('local');
-      setRoomCode(null);
-    }
-    if (action.type === 'RESET_GAME' && gameIdRef.current) {
-      logGameEnded(gameIdRef.current);
-      gameIdRef.current = null;
-      roomCodeLoggedRef.current = null;
-    }
-    dispatch(action);
-  }, [mode, roomCode, dispatch, state, playerMongoIds]);
+  const handleStopSharing = useCallback(() => {
+    if (roomCode) deleteRoom(roomCode);
+    setMode('local');
+    setRoomCode(null);
+  }, [roomCode]);
 
-  if (!loggedIn && mode !== 'spectator') {
-    return <LoginScreen onLogin={() => setLoggedIn(true)} />;
+  if (mode === 'spectator') {
+    if (!roomCode || !spectatorState || spectatorState.screen === 'setup') {
+      return <SpectatorScreen roomCode={roomCode ?? 'unknown'} status="waiting" />;
+    }
+
+    return (
+      <GameScreen
+        state={spectatorState}
+        dispatch={handleDispatch}
+        onUndo={() => {}}
+        canUndo={false}
+        mode="spectator"
+        roomCode={roomCode}
+        onCreateRoom={() => {}}
+        onStopSharing={() => {}}
+      />
+    );
   }
 
-  if (loggedIn && view === 'dashboard') {
-    return <DashboardScreen onBack={() => setView('game')} />;
-  }
-
-  if (loggedIn && view === 'admin') {
-    return <AdminScreen onBack={() => setView('game')} />;
-  }
-
-  if (loggedIn && view === 'summary') {
+  if (view === 'summary') {
     return (
       <GameSummaryScreen
         state={state}
@@ -265,33 +164,8 @@ function App() {
     );
   }
 
-  // Spectator mode: show remote state
-  if (mode === 'spectator') {
-    if (!spectatorState || spectatorState.screen === 'setup') {
-      return (
-        <SpectatorScreen
-          roomCode={roomCode!}
-          status={spectatorState === null ? 'waiting' : 'ended'}
-        />
-      );
-    }
-    return (
-      <GameScreen
-        state={spectatorState}
-        dispatch={handleDispatch}
-        onUndo={() => {}}
-        canUndo={false}
-        mode="spectator"
-        roomCode={roomCode}
-        onCreateRoom={() => {}}
-        onOpenDashboard={() => {}}
-      />
-    );
-  }
-
-  // Local / Host modes
   if (state.screen === 'setup') {
-    return <SetupScreen onStartGame={handleStartGame} onLogout={() => { setLoggedIn(false); }} />;
+    return <SetupScreen onStartGame={handleStartGame} />;
   }
 
   return (
@@ -303,11 +177,10 @@ function App() {
       mode={mode}
       roomCode={roomCode}
       onCreateRoom={handleCreateRoom}
-      onOpenDashboard={() => setView('dashboard')}
-      onOpenAdmin={isAdmin ? () => setView('admin') : undefined}
+      onStopSharing={handleStopSharing}
       onEndGame={state.roundHistory.length > 0 ? () => setView('summary') : undefined}
     />
   );
 }
 
-export default App;
+export default AppInner;
