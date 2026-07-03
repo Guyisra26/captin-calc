@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { GameState, GameAction, DoublingProposer } from '../types';
+import ActionWheel from './ActionWheel';
 
 interface RoundPanelProps {
   state: GameState;
@@ -347,45 +348,20 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
       {/* Action Buttons */}
       {!isReadOnly && (
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }} className="space-y-2">
-          {round.events.length === 0 && !showResolve && (
-            <button
-              onClick={() => dispatch({ type: 'INITIAL_DOUBLE' })}
-              className="btn btn-pivot w-full"
-            >
-              Initial Double → {round.perPlayerStake * 2}
-            </button>
-          )}
-
-          {!round.canRemove && canPivot && !showResolve && (
-            <button
-              onClick={handlePivot}
-              className="btn btn-pivot w-full"
-            >
-              {pivoterLabel} Pivots → {pivotStake}
-            </button>
-          )}
-
           {!round.canRemove && !showResolve && (
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleDouble('teamB')}
-                className={`btn btn-teamb ${round.nextDoublingProposer !== 'teamB' && round.nextDoublingProposer !== 'either' ? 'btn-disabled' : ''}`}
-              >
-                Crew ×2 → {round.perPlayerStake * 2}
-              </button>
-              <button
-                onClick={() => handleDouble('captain')}
-                className={`btn btn-captain ${round.nextDoublingProposer !== 'captain' && round.nextDoublingProposer !== 'either' ? 'btn-disabled' : ''}`}
-              >
-                Captain ×2 → {round.perPlayerStake * 2}
-              </button>
-            </div>
-          )}
-
-          {!round.canRemove && !showResolve && (
-            <button onClick={() => setShowResolve(true)} className="btn btn-success w-full">
-              End Round — Who Won?
-            </button>
+            <ActionWheel
+              stake={round.perPlayerStake}
+              captainName={captainName}
+              canDoubleTeamB={round.nextDoublingProposer === 'teamB' || round.nextDoublingProposer === 'either'}
+              canDoubleCaptain={round.nextDoublingProposer === 'captain' || round.nextDoublingProposer === 'either'}
+              bottomAction={round.events.length === 0 ? 'initial' : (canPivot ? 'pivot' : null)}
+              pivotStake={pivotStake}
+              onDoubleTeamB={() => handleDouble('teamB')}
+              onDoubleCaptain={() => handleDouble('captain')}
+              onPivot={handlePivot}
+              onInitialDouble={() => dispatch({ type: 'INITIAL_DOUBLE' })}
+              onEndRound={() => setShowResolve(true)}
+            />
           )}
 
           {/* Win type picker */}
