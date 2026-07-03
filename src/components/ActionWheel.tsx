@@ -93,8 +93,11 @@ export default function ActionWheel({
       viewBox="0 0 380 380"
       xmlns="http://www.w3.org/2000/svg"
       style={{ display: 'block', width: '100%', maxWidth: '320px', margin: '0 auto', touchAction: 'manipulation' }}
+      role="img"
       aria-label="Doubling action wheel"
     >
+      {/* SVG title: must be first child */}
+      <title>{`Action wheel for ${captainName}'s round. Stake: ${stake}`}</title>
       {/* Right spoke — Captain ×2 */}
       <path
         d={seg(-45, 45)}
@@ -103,7 +106,7 @@ export default function ActionWheel({
         strokeWidth={1.5}
         role={captainDisabled ? undefined : 'button'}
         tabIndex={captainDisabled ? undefined : 0}
-        aria-label={`Captain doubles to ${stake * 2}`}
+        aria-label={captainDisabled ? undefined : `Captain doubles to ${stake * 2}`}
         aria-disabled={captainDisabled ? true : undefined}
         style={{ cursor: captainDisabled ? 'default' : 'pointer' }}
         onClick={captainDisabled ? undefined : () => onDoubleCaptain()}
@@ -142,7 +145,7 @@ export default function ActionWheel({
         strokeWidth={1.5}
         role={crewDisabled ? undefined : 'button'}
         tabIndex={crewDisabled ? undefined : 0}
-        aria-label={`Crew doubles to ${stake * 2}`}
+        aria-label={crewDisabled ? undefined : `Crew doubles to ${stake * 2}`}
         aria-disabled={crewDisabled ? true : undefined}
         style={{ cursor: crewDisabled ? 'default' : 'pointer' }}
         onClick={crewDisabled ? undefined : () => onDoubleTeamB()}
@@ -287,8 +290,6 @@ export default function ActionWheel({
         {stake}
       </text>
 
-      {/* Hidden aria label for captain name context */}
-      <title>{`Action wheel for ${captainName}'s round. Stake: ${stake}`}</title>
     </svg>
   );
 }
