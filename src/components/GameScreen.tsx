@@ -53,7 +53,7 @@ export default function GameScreen({
   }
 
   const removalHelperText = roundActive
-    ? 'During an active round, captain and the last active Team B player cannot be removed.'
+    ? 'During an active round, captain and the last active Crew player cannot be removed.'
     : undefined;
 
   useEffect(() => {
@@ -91,14 +91,26 @@ export default function GameScreen({
     setShowAddPlayer(false);
   };
 
-  const handleCopyLink = async () => {
+  const handleShareLink = async () => {
     if (!roomCode) return;
     const url = `${window.location.origin}/?room=${roomCode}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      alert('Spectator link copied');
-    } catch {
-      alert(url);
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Captain Tavla',
+          text: `Watch our game live — room ${roomCode}`,
+          url,
+        });
+      } catch {
+        // user cancelled the share sheet — do nothing
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        alert('Spectator link copied');
+      } catch {
+        alert(url);
+      }
     }
     setMenuOpen(false);
   };
@@ -165,8 +177,8 @@ export default function GameScreen({
                 )}
 
                 {mode === 'host' && roomCode && (
-                  <button onClick={handleCopyLink} className="menu-item" style={{ color: 'var(--color-positive)' }}>
-                    ⎘ Copy Spectator Link
+                  <button onClick={handleShareLink} className="menu-item" style={{ color: 'var(--color-positive)' }}>
+                    ⎘ Share Spectator Link
                   </button>
                 )}
 
@@ -239,11 +251,11 @@ export default function GameScreen({
             Sharing Code: {roomCode}
           </span>
           <button
-            onClick={handleCopyLink}
+            onClick={handleShareLink}
             className="btn btn-ghost px-3 py-1 text-xs"
             style={{ minHeight: '32px' }}
           >
-            Copy Link
+            Share Link
           </button>
         </div>
       )}

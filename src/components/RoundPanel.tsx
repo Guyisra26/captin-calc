@@ -39,7 +39,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               color: lastRound.winner === 'captain' ? 'var(--accent-strong)' : 'var(--text)',
               marginBottom: '0.5rem',
             }}>
-              Round {lastRound.roundNumber} — {lastRound.winner === 'captain' ? 'Captain' : 'Team B'} Won
+              Round {lastRound.roundNumber} — {lastRound.winner === 'captain' ? 'Captain' : 'Crew'} Won
               {lastRound.winType === 'turkish' ? ' (Turkish Mars!)' : lastRound.winType === 'mars' ? ' (Mars!)' : '!'}
             </h3>
             <div style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }} className="space-y-1">
@@ -139,7 +139,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
   const removalPossible = round.canRemove && activeCount > 1;
   const canPivot = round.canPivot && round.nextDoublingProposer !== 'either';
   const pivotStake = round.perPlayerStake * 2;
-  const pivoterLabel = round.nextDoublingProposer === 'captain' ? `Captain (${captainName})` : 'Team B';
+  const pivoterLabel = round.nextDoublingProposer === 'captain' ? `Captain (${captainName})` : 'Crew';
 
   return (
     <div className="card space-y-4">
@@ -200,7 +200,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
           { label: 'Per Player', value: round.perPlayerStake, color: 'var(--text)' },
-          { label: 'Active B', value: activeCount, color: 'var(--text-dim)' },
+          { label: 'Active Crew', value: activeCount, color: 'var(--text-dim)' },
           { label: 'Captain Risk', value: captainStake, color: 'var(--accent)' },
         ].map(({ label, value, color }) => (
           <div
@@ -220,7 +220,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
 
       {/* Team B Players */}
       <div>
-        <div className="section-label">Team B</div>
+        <div className="section-label">Crew</div>
         <div className="flex flex-wrap gap-1.5">
           {round.teamBOrder.map(id => {
             const isActive = round.activeBPlayerIds.includes(id);
@@ -262,7 +262,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
           {round.nextDoublingProposer === 'captain'
             ? `Captain (${captainName})`
             : round.nextDoublingProposer === 'teamB'
-            ? 'Team B'
+            ? 'Crew'
             : 'Either side'}
         </span>
       </div>
@@ -294,7 +294,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
             </button>
           )}
           <div>
-            Only 1 active Team B player — removal not possible.{' '}
+            Only 1 active Crew player — removal not possible.{' '}
             <button onClick={handleSkipRemoval} className="btn btn-ghost ml-2 px-3 py-1 text-sm" style={{ minHeight: '32px' }}>Continue</button>
           </div>
         </div>
@@ -371,7 +371,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
                 onClick={() => handleDouble('teamB')}
                 className={`btn btn-teamb ${round.nextDoublingProposer !== 'teamB' && round.nextDoublingProposer !== 'either' ? 'btn-disabled' : ''}`}
               >
-                Team B ×2 → {round.perPlayerStake * 2}
+                Crew ×2 → {round.perPlayerStake * 2}
               </button>
               <button
                 onClick={() => handleDouble('captain')}
@@ -432,7 +432,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
                   </span>
                 </button>
                 <button onClick={() => handleResolve('teamB')} className="btn btn-teamb text-lg py-5 flex-col">
-                  <span>Team B Wins</span>
+                  <span>Crew Wins</span>
                   <span style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 400 }}>
                     {captainName} −{round.perPlayerStake * (resolveWinType === 'turkish' ? 3 : resolveWinType === 'mars' ? 2 : 1) * activeCount}
                   </span>

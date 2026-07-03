@@ -232,7 +232,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
           {step === 'order' && (
             <div className="card">
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
-                Team B Order
+                Crew Order
               </h2>
               <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
                 Captain: <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{getPlayerName(captainId)}</span>

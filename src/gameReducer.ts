@@ -88,7 +88,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         type: 'doubling' as const,
         timestamp: Date.now(),
         description: isTeamBProposal
-          ? `Team B doubles → stake per player: ${newStake}`
+          ? `Crew doubles → stake per player: ${newStake}`
           : `Captain (${captainName}) doubles → stake per player: ${newStake}`,
       };
 
@@ -145,7 +145,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newStake = round.perPlayerStake * 2;
       const isPivoterTeamB = action.pivoter === 'teamB';
       const captainName = getPlayerName(state.players, round.captainId);
-      const pivoterLabel = isPivoterTeamB ? 'Team B' : `Captain (${captainName})`;
+      const pivoterLabel = isPivoterTeamB ? 'Crew' : `Captain (${captainName})`;
 
       const event = {
         type: 'pivot' as const,
@@ -283,7 +283,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const winnerLabel = captainWins
         ? `Captain (${getPlayerName(state.players, round.captainId)})`
-        : `Team B / ${getPlayerName(state.players, round.representativeId)}`;
+        : `Crew / ${getPlayerName(state.players, round.representativeId)}`;
 
       const marsLabel = action.winType === 'turkish' ? ' (Turkish Mars ×3)' : action.winType === 'mars' ? ' (Mars ×2)' : '';
 
