@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Rubik:wght@400..800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -34,8 +34,8 @@
   --violet-border: rgba(167, 139, 250, 0.38);
 
   /* fonts */
-  --font-body: 'Instrument Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', 'Rubik', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Rubik', system-ui, sans-serif;
 }
 
 * {
@@ -124,7 +124,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 0.85rem;
+  padding: calc(0.6rem + env(safe-area-inset-top)) 0.85rem 0.6rem;
   background: rgba(19, 22, 29, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
