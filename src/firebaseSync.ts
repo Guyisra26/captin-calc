@@ -1,12 +1,20 @@
 import type { GameState } from './types';
+import { getIdToken } from './authGate';
 
 const DB_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL as string;
 const POLL_INTERVAL_MS = 2000;
 
+async function authedFetch(url: string, opts?: RequestInit): Promise<Response> {
+  const token = await getIdToken();
+  const sep = url.includes('?') ? '&' : '?';
+  const finalUrl = token ? `${url}${sep}auth=${token}` : url;
+  return fetch(finalUrl, opts);
+}
+
 export function writeRoom(roomCode: string, state: GameState): void {
   if (!DB_URL) return;
   // Double-encode as string so Firebase doesn't convert arrays to indexed objects
-  fetch(`${DB_URL}/rooms/${roomCode}/state.json`, {
+  authedFetch(`${DB_URL}/rooms/${roomCode}/state.json`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(JSON.stringify(state)),
@@ -27,7 +35,7 @@ export function subscribeRoom(
   const poll = async () => {
     if (stopped) return;
     try {
-      const res = await fetch(`${DB_URL}/rooms/${roomCode}/state.json`);
+      const res = await authedFetch(`${DB_URL}/rooms/${roomCode}/state.json`);
       if (!res.ok) {
         console.error('Firebase REST error:', res.status, res.statusText);
       } else {
@@ -48,7 +56,7 @@ export function subscribeRoom(
 
 export function deleteRoom(roomCode: string): void {
   if (!DB_URL) return;
-  fetch(`${DB_URL}/rooms/${roomCode}.json`, {
+  authedFetch(`${DB_URL}/rooms/${roomCode}.json`, {
     method: 'DELETE',
   }).catch(err => console.error('Firebase delete error:', err));
 }

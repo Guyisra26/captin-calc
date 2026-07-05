@@ -3,10 +3,12 @@ import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
+import { subscribeAuth, signInWithGoogle, signOutUser, isAllowed, type User } from './authGate';
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import GameSummaryScreen from './components/GameSummaryScreen';
 import SpectatorScreen from './components/SpectatorScreen';
+import AuthGate from './components/AuthGate';
 
 const MAX_UNDO = 50;
 const LS_ROOM_CODE = 'captainCalc_roomCode';
@@ -48,6 +50,13 @@ function getRoomCodeFromURL(): string | null {
 }
 
 function AppInner() {
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    return subscribeAuth(u => { setAuthUser(u); setAuthReady(true); });
+  }, []);
+
   const [{ current: state, history }, dispatch] = useReducer(undoReducer, null, () => {
     const saved = loadGameState();
     return { current: saved ?? initialGameState, history: [] };
@@ -133,6 +142,10 @@ function AppInner() {
     setRoomCode(null);
   }, [roomCode]);
 
+  if (!authReady) return <AuthGate mode="loading" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+  if (!authUser) return <AuthGate mode="signin" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+  if (!isAllowed(authUser)) return <AuthGate mode="denied" email={authUser.email} onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+
   if (mode === 'spectator') {
     if (!roomCode || !spectatorState || spectatorState.screen === 'setup') {
       return <SpectatorScreen roomCode={roomCode ?? 'unknown'} status="waiting" />;
@@ -179,6 +192,7 @@ function AppInner() {
       onCreateRoom={handleCreateRoom}
       onStopSharing={handleStopSharing}
       onEndGame={state.roundHistory.length > 0 ? () => setView('summary') : undefined}
+      onSignOut={signOutUser}
     />
   );
 }

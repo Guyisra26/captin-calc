@@ -16,6 +16,7 @@ interface GameScreenProps {
   onCreateRoom: () => void;
   onStopSharing: () => void;
   onEndGame?: () => void;
+  onSignOut?: () => void;
 }
 
 export default function GameScreen({
@@ -28,6 +29,7 @@ export default function GameScreen({
   onCreateRoom,
   onStopSharing,
   onEndGame,
+  onSignOut,
 }: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -233,6 +235,12 @@ export default function GameScreen({
                 <button onClick={handleReset} className="menu-item" style={{ color: 'var(--color-negative)' }}>
                   ✕ New Game
                 </button>
+
+                {onSignOut && (
+                  <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="menu-item" style={{ color: 'var(--text-dim)' }}>
+                    ⎋ Sign Out
+                  </button>
+                )}
               </div>
             )}
           </div>
