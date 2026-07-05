@@ -17,6 +17,9 @@ interface GameScreenProps {
   onStopSharing: () => void;
   onEndGame?: () => void;
   onSignOut?: () => void;
+  onTransferHost?: () => void;
+  onCancelTransfer?: () => void;
+  transferPending?: boolean;
 }
 
 export default function GameScreen({
@@ -30,6 +33,9 @@ export default function GameScreen({
   onStopSharing,
   onEndGame,
   onSignOut,
+  onTransferHost,
+  onCancelTransfer,
+  transferPending,
 }: GameScreenProps) {
   const round = state.currentRound;
   const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -194,6 +200,26 @@ export default function GameScreen({
                     style={{ color: 'var(--accent)' }}
                   >
                     ☐ Stop Sharing
+                  </button>
+                )}
+
+                {onTransferHost && (
+                  <button
+                    onClick={() => { onTransferHost(); setMenuOpen(false); }}
+                    className="menu-item"
+                    style={{ color: 'var(--color-positive)' }}
+                  >
+                    ⇄ Transfer Host
+                  </button>
+                )}
+
+                {transferPending && onCancelTransfer && (
+                  <button
+                    onClick={() => { onCancelTransfer(); setMenuOpen(false); }}
+                    className="menu-item"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    ✕ Cancel Transfer
                   </button>
                 )}
 
