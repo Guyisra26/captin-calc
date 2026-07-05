@@ -142,9 +142,13 @@ function AppInner() {
     setRoomCode(null);
   }, [roomCode]);
 
-  if (!authReady) return <AuthGate mode="loading" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
-  if (!authUser) return <AuthGate mode="signin" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
-  if (!isAllowed(authUser)) return <AuthGate mode="denied" email={authUser.email} onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+  // Spectator links (?room=...) are public read-only — skip the auth gate for them.
+  // Everything else (hosting / playing) stays behind Google sign-in + allowlist.
+  if (!urlRoom) {
+    if (!authReady) return <AuthGate mode="loading" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+    if (!authUser) return <AuthGate mode="signin" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+    if (!isAllowed(authUser)) return <AuthGate mode="denied" email={authUser.email} onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+  }
 
   if (mode === 'spectator') {
     if (!roomCode || !spectatorState || spectatorState.screen === 'setup') {
