@@ -4,7 +4,7 @@ import { getIdToken } from './authGate';
 const DB_URL = import.meta.env.VITE_FIREBASE_DATABASE_URL as string;
 const POLL_INTERVAL_MS = 2000;
 
-async function authedFetch(url: string, opts?: RequestInit): Promise<Response> {
+export async function authedFetch(url: string, opts?: RequestInit): Promise<Response> {
   const token = await getIdToken();
   const sep = url.includes('?') ? '&' : '?';
   const finalUrl = token ? `${url}${sep}auth=${token}` : url;
