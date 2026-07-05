@@ -3,7 +3,8 @@ import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
-import { createHandoff, cancelHandoff, readHost, writeHost } from './hostTransfer';
+import { createHandoff, cancelHandoff, readHost, writeHost, claimHost } from './hostTransfer';
+import ClaimHostScreen from './components/ClaimHostScreen';
 import { subscribeAuth, signInWithGoogle, signOutUser, isAllowed, type User } from './authGate';
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
@@ -22,8 +23,12 @@ interface UndoState {
 
 function undoReducer(
   state: UndoState,
-  action: GameAction | { type: 'UNDO' }
+  action: GameAction | { type: 'UNDO' } | { type: 'HYDRATE'; state: GameState }
 ): UndoState {
+  if (action.type === 'HYDRATE') {
+    return { current: action.state, history: [] };
+  }
+
   if (action.type === 'UNDO') {
     if (state.history.length === 0) return state;
     const prev = state.history[state.history.length - 1];
@@ -50,6 +55,10 @@ function getRoomCodeFromURL(): string | null {
   return new URLSearchParams(window.location.search).get('room');
 }
 
+function getClaimFromURL(): string | null {
+  return new URLSearchParams(window.location.search).get('claim');
+}
+
 function AppInner() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -64,6 +73,7 @@ function AppInner() {
   });
 
   const urlRoom = getRoomCodeFromURL();
+  const claimToken = getClaimFromURL();
 
   const [mode, setMode] = useState<AppMode>(() => {
     if (urlRoom) return 'spectator';
@@ -85,6 +95,8 @@ function AppInner() {
 
   const myUid = authUser?.uid ?? null;
   const [transferPending, setTransferPending] = useState(false);
+  const [claimStatus, setClaimStatus] = useState<'confirm' | 'claiming' | 'expired'>('confirm');
+  const [claimDismissed, setClaimDismissed] = useState(false);
 
   useEffect(() => {
     if (state !== prevStateRef.current) {
@@ -182,12 +194,41 @@ function AppInner() {
     setTransferPending(false);
   }, [roomCode]);
 
-  // Spectator links (?room=...) are public read-only — skip the auth gate for them.
-  // Everything else (hosting / playing) stays behind Google sign-in + allowlist.
-  if (!urlRoom) {
+  // Pure spectator links (?room=, no claim) skip the gate. Claim links require sign-in.
+  if (!urlRoom || claimToken) {
     if (!authReady) return <AuthGate mode="loading" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
     if (!authUser) return <AuthGate mode="signin" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
     if (!isAllowed(authUser)) return <AuthGate mode="denied" email={authUser.email} onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
+  }
+
+  if (urlRoom && claimToken && !claimDismissed) {
+    const handleConfirmClaim = async () => {
+      if (claimStatus === 'claiming') return;
+      if (!myUid) return;
+      setClaimStatus('claiming');
+      const result = await claimHost(urlRoom, claimToken, myUid);
+      if (!result.ok) { setClaimStatus('expired'); return; }
+      if (result.state) dispatch({ type: 'HYDRATE', state: result.state });
+      setRoomCode(urlRoom);
+      setMode('host');
+      setTransferPending(false);
+      setClaimDismissed(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    };
+    const handleWatchInstead = () => {
+      setRoomCode(urlRoom);
+      setMode('spectator');
+      setClaimDismissed(true);
+      window.history.replaceState({}, '', `${window.location.pathname}?room=${urlRoom}`);
+    };
+    return (
+      <ClaimHostScreen
+        roomCode={urlRoom}
+        status={claimStatus}
+        onConfirm={handleConfirmClaim}
+        onWatchInstead={handleWatchInstead}
+      />
+    );
   }
 
   if (mode === 'spectator') {
