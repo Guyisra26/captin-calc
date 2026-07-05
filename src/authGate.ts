@@ -7,7 +7,13 @@ import { app } from './firebase';
 export const auth = getAuth(app);
 
 // Allowlist of permitted emails (lowercase). Add a friend = add a line + redeploy.
-const ALLOWLIST = ['guyisr234@gmail.com'].map(e => e.toLowerCase());
+const ALLOWLIST = [
+  'guyisr234@gmail.com',
+  'yardenbla1@gmail.com',
+  'adirpoldian5443@gmail.com',
+  'benhanono2@gmail.com',
+  'nissfarchi29@gmail.com',
+].map(e => e.toLowerCase());
 
 export function isAllowed(user: User | null): boolean {
   const email = user?.email?.toLowerCase();
