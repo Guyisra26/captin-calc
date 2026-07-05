@@ -3,7 +3,7 @@ import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
-import { createHandoff, cancelHandoff, readHost, writeHost, claimHost } from './hostTransfer';
+import { createHandoff, cancelHandoff, readHost, writeHost, claimHost, subscribeHost, isStillHost } from './hostTransfer';
 import ClaimHostScreen from './components/ClaimHostScreen';
 import { subscribeAuth, signInWithGoogle, signOutUser, isAllowed, type User } from './authGate';
 import SetupScreen from './components/SetupScreen';
@@ -95,6 +95,7 @@ function AppInner() {
 
   const myUid = authUser?.uid ?? null;
   const [transferPending, setTransferPending] = useState(false);
+  const [hostingTransferred, setHostingTransferred] = useState(false);
   const [claimStatus, setClaimStatus] = useState<'confirm' | 'claiming' | 'expired'>('confirm');
   const [claimDismissed, setClaimDismissed] = useState(false);
 
@@ -132,6 +133,23 @@ function AppInner() {
       if (!h) writeHost(roomCode, { uid: myUid, epoch: 1 });
     });
   }, [mode, roomCode, myUid]);
+
+  useEffect(() => {
+    if (mode !== 'host' || !roomCode || !myUid) return;
+    const unsub = subscribeHost(roomCode, info => {
+      if (!isStillHost(info, myUid)) {
+        setMode('spectator');
+        setHostingTransferred(true);
+      }
+    });
+    return () => unsub();
+  }, [mode, roomCode, myUid]);
+
+  useEffect(() => {
+    if (!hostingTransferred) return;
+    const t = setTimeout(() => setHostingTransferred(false), 5000);
+    return () => clearTimeout(t);
+  }, [hostingTransferred]);
 
   const handleUndo = useCallback(() => {
     dispatch({ type: 'UNDO' });
@@ -232,21 +250,51 @@ function AppInner() {
   }
 
   if (mode === 'spectator') {
+    const banner = hostingTransferred ? (
+      <div
+        style={{
+          position: 'fixed',
+          top: 'calc(env(safe-area-inset-top) + 8px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          background: 'var(--surface-2)',
+          border: '1px solid var(--border-strong)',
+          borderRadius: 999,
+          padding: '8px 16px',
+          color: 'var(--text)',
+          fontSize: '0.85rem',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Hosting transferred — you're now watching
+      </div>
+    ) : null;
+
     if (!roomCode || !spectatorState || spectatorState.screen === 'setup') {
-      return <SpectatorScreen roomCode={roomCode ?? 'unknown'} status="waiting" />;
+      return (
+        <>
+          {banner}
+          <SpectatorScreen roomCode={roomCode ?? 'unknown'} status="waiting" />
+        </>
+      );
     }
 
     return (
-      <GameScreen
-        state={spectatorState}
-        dispatch={handleDispatch}
-        onUndo={() => {}}
-        canUndo={false}
-        mode="spectator"
-        roomCode={roomCode}
-        onCreateRoom={() => {}}
-        onStopSharing={() => {}}
-      />
+      <>
+        {banner}
+        <GameScreen
+          state={spectatorState}
+          dispatch={handleDispatch}
+          onUndo={() => {}}
+          canUndo={false}
+          mode="spectator"
+          roomCode={roomCode}
+          onCreateRoom={() => {}}
+          onStopSharing={() => {}}
+        />
+      </>
     );
   }
 
