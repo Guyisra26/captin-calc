@@ -3,6 +3,7 @@ import type { GameState, GameAction, AppMode } from './types';
 import { gameReducer, initialGameState } from './gameReducer';
 import { saveGameState, loadGameState } from './storage';
 import { writeRoom, subscribeRoom, deleteRoom } from './firebaseSync';
+import { createHandoff, cancelHandoff, readHost, writeHost } from './hostTransfer';
 import { subscribeAuth, signInWithGoogle, signOutUser, isAllowed, type User } from './authGate';
 import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
@@ -82,6 +83,9 @@ function AppInner() {
   const canUndo = history.length > 0;
   const prevStateRef = useRef(state);
 
+  const myUid = authUser?.uid ?? null;
+  const [transferPending, setTransferPending] = useState(false);
+
   useEffect(() => {
     if (state !== prevStateRef.current) {
       saveGameState(state);
@@ -110,6 +114,13 @@ function AppInner() {
     return () => unsub();
   }, [mode, roomCode]);
 
+  useEffect(() => {
+    if (mode !== 'host' || !roomCode || !myUid) return;
+    readHost(roomCode).then(h => {
+      if (!h) writeHost(roomCode, { uid: myUid, epoch: 1 });
+    });
+  }, [mode, roomCode, myUid]);
+
   const handleUndo = useCallback(() => {
     dispatch({ type: 'UNDO' });
   }, []);
@@ -134,12 +145,40 @@ function AppInner() {
       .join('');
     setRoomCode(code);
     setMode('host');
-  }, []);
+    if (myUid) writeHost(code, { uid: myUid, epoch: 1 });
+  }, [myUid]);
 
   const handleStopSharing = useCallback(() => {
     if (roomCode) deleteRoom(roomCode);
     setMode('local');
     setRoomCode(null);
+  }, [roomCode]);
+
+  const handleTransferHost = useCallback(async () => {
+    if (!roomCode) return;
+    const token = await createHandoff(roomCode);
+    setTransferPending(true);
+    const url = `${window.location.origin}/?room=${roomCode}&claim=${token}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Captain Tavla', text: 'Take over hosting of our game', url });
+      } catch {
+        // share sheet cancelled — token stays valid, link is still shareable later
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        alert('Transfer link copied');
+      } catch {
+        alert(url);
+      }
+    }
+  }, [roomCode]);
+
+  const handleCancelTransfer = useCallback(async () => {
+    if (!roomCode) return;
+    await cancelHandoff(roomCode);
+    setTransferPending(false);
   }, [roomCode]);
 
   // Spectator links (?room=...) are public read-only — skip the auth gate for them.
@@ -197,6 +236,9 @@ function AppInner() {
       onStopSharing={handleStopSharing}
       onEndGame={state.roundHistory.length > 0 ? () => setView('summary') : undefined}
       onSignOut={signOutUser}
+      onTransferHost={mode === 'host' && roomCode ? handleTransferHost : undefined}
+      onCancelTransfer={handleCancelTransfer}
+      transferPending={transferPending}
     />
   );
 }
