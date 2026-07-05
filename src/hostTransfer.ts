@@ -77,7 +77,7 @@ export async function cancelHandoff(code: string): Promise<void> {
 async function readState(code: string): Promise<GameState | null> {
   if (!DB_URL) return null;
   const res = await authedFetch(`${DB_URL}/rooms/${code}/state.json`);
-  if (!res.ok) return null;
+  if (!res.ok) throw new Error('state read failed: ' + res.status);
   const raw = await res.json();
   return raw ? (JSON.parse(raw as string) as GameState) : null;
 }
@@ -90,10 +90,15 @@ export async function claimHost(
   const handoff = await readHandoff(code);
   const verdict = evaluateClaim(handoff, token);
   if (!verdict.ok) return verdict;
+  let state: GameState | null;
+  try {
+    state = await readState(code);
+  } catch {
+    return { ok: false, reason: 'expired' };
+  }
   const currentHost = await readHost(code);
   await writeHost(code, nextHostInfo(currentHost, myUid));
   await cancelHandoff(code);
-  const state = await readState(code);
   return { ok: true, state };
 }
 
