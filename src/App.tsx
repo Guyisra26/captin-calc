@@ -152,6 +152,7 @@ function AppInner() {
     if (roomCode) deleteRoom(roomCode);
     setMode('local');
     setRoomCode(null);
+    setTransferPending(false);
   }, [roomCode]);
 
   const handleTransferHost = useCallback(async () => {
