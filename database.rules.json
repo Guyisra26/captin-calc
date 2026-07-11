@@ -1,7 +1,7 @@
 {
   "rules": {
-    ".read": "auth != null && (auth.token.email == 'guyisr234@gmail.com' || auth.token.email == 'yardenbla1@gmail.com' || auth.token.email == 'adirpoldian5443@gmail.com' || auth.token.email == 'benhanono2@gmail.com' || auth.token.email == 'nissfarchi29@gmail.com')",
-    ".write": "auth != null && (auth.token.email == 'guyisr234@gmail.com' || auth.token.email == 'yardenbla1@gmail.com' || auth.token.email == 'adirpoldian5443@gmail.com' || auth.token.email == 'benhanono2@gmail.com' || auth.token.email == 'nissfarchi29@gmail.com')",
+    ".read": "auth != null && (auth.token.email == 'guyisr234@gmail.com' || auth.token.email == 'yardenbla1@gmail.com' || auth.token.email == 'adirpoldian5443@gmail.com' || auth.token.email == 'benhanono2@gmail.com' || auth.token.email == 'nissfarchi29@gmail.com' || auth.token.email == 'guyisraeli08@gmail.com')",
+    ".write": "auth != null && (auth.token.email == 'guyisr234@gmail.com' || auth.token.email == 'yardenbla1@gmail.com' || auth.token.email == 'adirpoldian5443@gmail.com' || auth.token.email == 'benhanono2@gmail.com' || auth.token.email == 'nissfarchi29@gmail.com' || auth.token.email == 'guyisraeli08@gmail.com')",
     "rooms": {
       "$room": {
         "state": { ".read": true }
