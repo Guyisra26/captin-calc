@@ -74,6 +74,7 @@ function AppInner() {
 
   const urlRoom = getRoomCodeFromURL();
   const claimToken = getClaimFromURL();
+  const devBypass = import.meta.env.DEV && new URLSearchParams(window.location.search).get('devauth') === '1';
 
   const [mode, setMode] = useState<AppMode>(() => {
     if (urlRoom) return 'spectator';
@@ -213,7 +214,7 @@ function AppInner() {
   }, [roomCode]);
 
   // Pure spectator links (?room=, no claim) skip the gate. Claim links require sign-in.
-  if (!urlRoom || claimToken) {
+  if (!devBypass && (!urlRoom || claimToken)) {
     if (!authReady) return <AuthGate mode="loading" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
     if (!authUser) return <AuthGate mode="signin" onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
     if (!isAllowed(authUser)) return <AuthGate mode="denied" email={authUser.email} onSignIn={signInWithGoogle} onSignOut={signOutUser} />;
