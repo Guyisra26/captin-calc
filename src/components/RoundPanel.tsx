@@ -162,59 +162,30 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
       <div className="flex items-center justify-center gap-4">
         <div className="text-center flex-1">
           <div className="section-label">Captain</div>
-          <div
-            style={{
-              background: 'var(--accent-dim)',
-              border: '1px solid var(--accent-border)',
-              color: 'var(--accent-strong)',
-              fontFamily: 'var(--font-display)',
-              fontWeight: 600,
-              fontSize: '1.15rem',
-              padding: '0.6rem 1rem',
-              borderRadius: '12px',
-            }}
-          >
+          <div className="plaque plaque--captain">
+            <span aria-hidden="true" style={{ fontSize: '0.8em', marginInlineEnd: '0.35em' }}>⚓</span>
             {captainName}
           </div>
         </div>
-        <span style={{ fontSize: '1rem', color: 'var(--text-dim)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>VS</span>
+        <span style={{ fontSize: '0.85rem', letterSpacing: '0.05em', color: 'var(--accent)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>VS</span>
         <div className="text-center flex-1">
           <div className="section-label">Representative</div>
-          <div
-            style={{
-              background: 'var(--surface-2)',
-              border: '1px solid var(--border)',
-              color: 'var(--text)',
-              fontFamily: 'var(--font-display)',
-              fontWeight: 600,
-              fontSize: '1.15rem',
-              padding: '0.6rem 1rem',
-              borderRadius: '12px',
-            }}
-          >
+          <div className="plaque plaque--rep">
             {repName}
           </div>
         </div>
       </div>
 
       {/* Stakes Grid */}
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="felt-stats">
         {[
           { label: 'Per Player', value: round.perPlayerStake, color: 'var(--text)' },
           { label: 'Active Crew', value: activeCount, color: 'var(--text-dim)' },
           { label: 'Captain Risk', value: captainStake, color: 'var(--accent)' },
         ].map(({ label, value, color }) => (
-          <div
-            key={label}
-            style={{
-              background: 'var(--surface-2)',
-              border: '1px solid var(--border)',
-              borderRadius: '12px',
-              padding: '0.5rem',
-            }}
-          >
-            <div className="section-label" style={{ marginBottom: '0.2rem' }}>{label}</div>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: '1.6rem', color }}>{value}</div>
+          <div key={label} className="felt-stat">
+            <div className="section-label">{label}</div>
+            <div className="felt-stat-value" style={{ color }}>{value}</div>
           </div>
         ))}
       </div>
@@ -229,16 +200,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
             return (
               <span
                 key={id}
-                style={{
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '999px',
-                  fontSize: '0.9rem',
-                  fontWeight: isRep ? 600 : 400,
-                  textDecoration: !isActive ? 'line-through' : 'none',
-                  color: !isActive ? 'var(--color-removed)' : isRep ? 'var(--text)' : 'var(--text-dim)',
-                  background: !isActive ? 'transparent' : isRep ? 'rgba(242,228,196,0.1)' : 'rgba(242,228,196,0.05)',
-                  border: isRep && isActive ? '1px solid var(--border-strong)' : '1px solid transparent',
-                }}
+                className={`crew-chip${!isActive ? ' crew-chip--out' : isRep ? ' crew-chip--rep' : ''}`}
               >
                 {getPlayerName(id)}
                 {!isActive && ' (out)'}

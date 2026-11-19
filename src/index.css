@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Rubik:wght@400..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Rubik:wght@400..800&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -39,8 +39,8 @@
   --felt-border: #2d6a44;
 
   /* fonts */
-  --font-body: 'Lora', 'Rubik', Georgia, serif;
-  --font-display: 'Cinzel', 'Rubik', serif;
+  --font-body: "Lora", "Rubik", Georgia, serif;
+  --font-display: "Cinzel", "Rubik", serif;
 }
 
 * {
@@ -62,8 +62,16 @@ body {
   background-color: var(--bg);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.9 0 0 0 0 0.7 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(60vw 45vh at 0% 0%, rgba(201, 147, 44, 0.08), transparent 70%),
-    radial-gradient(60vw 45vh at 100% 100%, rgba(45, 106, 68, 0.1), transparent 70%),
+    radial-gradient(
+      60vw 45vh at 0% 0%,
+      rgba(201, 147, 44, 0.08),
+      transparent 70%
+    ),
+    radial-gradient(
+      60vw 45vh at 100% 100%,
+      rgba(45, 106, 68, 0.1),
+      transparent 70%
+    ),
     linear-gradient(180deg, #1a0e06 0%, #140b05 45%, #0f0803 100%);
   background-attachment: fixed;
 }
@@ -197,7 +205,12 @@ body {
   min-width: 48px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    filter 0.15s ease;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -215,11 +228,15 @@ body {
   background: linear-gradient(180deg, #e0ad45 0%, #c9932c 100%);
   color: var(--accent-ink);
   border-color: #eec96d;
-  box-shadow: 0 2px 0 #7a5a14, 0 6px 14px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 2px 0 #7a5a14,
+    0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
 .btn-captain:active {
-  box-shadow: 0 1px 0 #7a5a14, 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 1px 0 #7a5a14,
+    0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 @media (hover: hover) {
@@ -232,11 +249,15 @@ body {
   background: linear-gradient(180deg, #3a2514 0%, #2a1a0d 100%);
   color: var(--text);
   border-color: rgba(242, 228, 196, 0.22);
-  box-shadow: 0 2px 0 #0d0703, 0 6px 14px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 2px 0 #0d0703,
+    0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
 .btn-teamb:active {
-  box-shadow: 0 1px 0 #0d0703, 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 1px 0 #0d0703,
+    0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 @media (hover: hover) {
@@ -246,7 +267,11 @@ body {
 }
 
 .btn-danger {
-  background: linear-gradient(180deg, rgba(224, 104, 91, 0.2) 0%, rgba(224, 104, 91, 0.1) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(224, 104, 91, 0.2) 0%,
+    rgba(224, 104, 91, 0.1) 100%
+  );
   color: var(--color-negative);
   border-color: rgba(224, 104, 91, 0.45);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
@@ -260,11 +285,15 @@ body {
   background: linear-gradient(180deg, #60b150 0%, #4c9a3f 100%);
   color: #0c1708;
   border-color: #8fd47e;
-  box-shadow: 0 2px 0 #1f4619, 0 6px 14px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 2px 0 #1f4619,
+    0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
 .btn-success:active {
-  box-shadow: 0 1px 0 #1f4619, 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 1px 0 #1f4619,
+    0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 @media (hover: hover) {
@@ -286,7 +315,11 @@ body {
 }
 
 .btn-pivot {
-  background: linear-gradient(180deg, rgba(208, 138, 90, 0.26) 0%, rgba(208, 138, 90, 0.14) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(208, 138, 90, 0.26) 0%,
+    rgba(208, 138, 90, 0.14) 100%
+  );
   color: var(--violet);
   border-color: var(--violet-border);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
@@ -297,7 +330,11 @@ body {
 }
 
 .btn-mars {
-  background: linear-gradient(180deg, rgba(232, 168, 76, 0.22) 0%, rgba(232, 168, 76, 0.1) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(232, 168, 76, 0.22) 0%,
+    rgba(232, 168, 76, 0.1) 100%
+  );
   color: #eab05a;
   border-color: rgba(232, 168, 76, 0.45);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
@@ -308,7 +345,11 @@ body {
 }
 
 .btn-turkish {
-  background: linear-gradient(180deg, rgba(224, 104, 91, 0.2) 0%, rgba(224, 104, 91, 0.1) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(224, 104, 91, 0.2) 0%,
+    rgba(224, 104, 91, 0.1) 100%
+  );
   color: var(--color-negative);
   border-color: rgba(224, 104, 91, 0.45);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
@@ -331,18 +372,37 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1rem;
-  box-shadow: inset 0 1px 0 rgba(242, 228, 196, 0.05), 0 10px 28px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(242, 228, 196, 0.05),
+    0 10px 28px rgba(0, 0, 0, 0.4);
   animation: cardRise 0.3s ease both;
 }
 
 /* Felt variant — the "playing table" (active round only) */
 .card--felt {
+  position: relative;
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(60, 130, 85, 0.28), transparent 65%),
+    radial-gradient(
+      120% 90% at 50% 0%,
+      rgba(60, 130, 85, 0.28),
+      transparent 65%
+    ),
     radial-gradient(100% 80% at 50% 120%, rgba(0, 0, 0, 0.35), transparent 70%),
     var(--felt);
   border-color: var(--felt-border);
-  box-shadow: inset 0 0 0 1px rgba(122, 90, 20, 0.55), inset 0 1px 0 rgba(242, 228, 196, 0.06), 0 10px 28px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    inset 0 0 0 1px rgba(122, 90, 20, 0.55),
+    inset 0 1px 0 rgba(242, 228, 196, 0.06),
+    0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.card--felt::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed rgba(201, 147, 44, 0.28);
+  border-radius: 11px;
+  pointer-events: none;
 }
 
 /* ─── Live status pill ─── */
@@ -475,7 +535,9 @@ body {
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  transition: transform 0.12s ease, background 0.15s ease;
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease;
   animation: fabIn 0.18s ease both;
 }
 
@@ -545,7 +607,9 @@ body {
   font-family: var(--font-body);
   font-size: 1.05rem;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   width: 100%;
 }
 
@@ -614,14 +678,107 @@ select.board-input {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: var(--surface-3);
-  border: 1px solid var(--accent-border);
-  border-radius: 12px;
-  color: var(--accent-strong);
+  background: linear-gradient(145deg, #f7ecd2, #dcc693);
+  color: #38220e;
+  border: none;
+  border-radius: 10px;
+  transform: rotate(-4deg);
+  box-shadow:
+    2px 3px 0 rgba(0, 0, 0, 0.35),
+    0 5px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.12);
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* Stats printed on the felt */
+.felt-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.felt-stat {
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  background: none;
+}
+.felt-stat + .felt-stat {
+  border-left: 1px solid rgba(201, 147, 44, 0.22);
+}
+.felt-stat .section-label {
+  color: var(--text-dim);
+  margin-bottom: 0.2rem;
+}
+.felt-stat-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+
+/* Name plaques */
+.plaque {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  text-align: center;
+}
+.plaque--captain {
+  background: linear-gradient(
+    180deg,
+    rgba(201, 147, 44, 0.24),
+    rgba(201, 147, 44, 0.1)
+  );
+  border: 1px solid var(--accent);
+  box-shadow:
+    inset 0 0 0 2px rgba(20, 11, 5, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  color: var(--accent-strong);
+}
+.plaque--rep {
+  background: linear-gradient(180deg, #33200f, #241507);
+  border: 1px solid var(--border-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(242, 228, 196, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  color: var(--text);
+}
+
+/* Crew chips (checker look) */
+.crew-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(242, 228, 196, 0.13),
+    rgba(242, 228, 196, 0.04)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 228, 196, 0.16),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.16),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.crew-chip--rep {
+  color: var(--text);
+  font-weight: 600;
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.crew-chip--out {
+  background: none;
+  box-shadow: none;
+  color: var(--color-removed);
+  text-decoration: line-through;
 }
 
 @media (prefers-reduced-motion: reduce) {
