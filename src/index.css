@@ -361,9 +361,11 @@ body {
 
 .btn-disabled,
 .btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
+  filter: saturate(0.55);
   pointer-events: none;
   box-shadow: none;
+  transform: none;
 }
 
 /* ─── Card ─── */

@@ -38,7 +38,7 @@ export default function ActionBoard({
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
-          className={`btn ${canDoubleCaptain ? "btn-captain" : "btn-disabled"}`}
+          className="btn btn-captain"
           style={{ minHeight: "64px", ...colStyle }}
           disabled={!canDoubleCaptain}
           onClick={onDoubleCaptain}
@@ -48,7 +48,7 @@ export default function ActionBoard({
         </button>
         <button
           type="button"
-          className={`btn ${canDoubleTeamB ? "btn-teamb" : "btn-disabled"}`}
+          className="btn btn-teamb"
           style={{ minHeight: "64px", ...colStyle }}
           disabled={!canDoubleTeamB}
           onClick={onDoubleTeamB}
