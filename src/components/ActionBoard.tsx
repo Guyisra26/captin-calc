@@ -23,7 +23,6 @@ const colStyle = {
 
 export default function ActionBoard({
   stake,
-  captainName,
   canDoubleTeamB,
   canDoubleCaptain,
   bottomAction,
@@ -43,7 +42,6 @@ export default function ActionBoard({
           style={{ minHeight: "64px", ...colStyle }}
           disabled={!canDoubleCaptain}
           onClick={onDoubleCaptain}
-          aria-label={`${captainName} doubles to ${stake * 2}`}
         >
           <span>Captain ×2</span>
           <span style={subtitleStyle}>{`→ ${stake * 2}`}</span>
@@ -54,7 +52,6 @@ export default function ActionBoard({
           style={{ minHeight: "64px", ...colStyle }}
           disabled={!canDoubleTeamB}
           onClick={onDoubleTeamB}
-          aria-label={`Crew doubles to ${stake * 2}`}
         >
           <span>Crew ×2</span>
           <span style={subtitleStyle}>{`→ ${stake * 2}`}</span>

@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import RoundHistory from './RoundHistory';
 
-const COLORS = ['#d4b36a', '#57c98a', '#e0666c', '#5fa8e8', '#c9d157', '#a78bfa'];
+const COLORS = ['#c9932c', '#6fbf5a', '#e0685b', '#d08a5a', '#e8c264', '#8f7f6a'];
 
 interface Props {
   state: GameState;
@@ -62,10 +62,10 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
   }, [players]);
 
   const chartTooltipStyle = {
-    background: '#1a1e27',
-    border: '1px solid rgba(255,255,255,0.16)',
+    background: '#271a0d',
+    border: '1px solid rgba(242,228,196,0.2)',
     borderRadius: '10px',
-    color: '#edf0f5',
+    color: '#f2e4c4',
     fontSize: '0.8rem',
   };
 
@@ -124,15 +124,15 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
             <h2 className="section-label" style={{ marginBottom: '0.75rem' }}>Balance Progression</h2>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={lineData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(242,228,196,0.1)" />
                 <XAxis
                   dataKey="round"
-                  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }}
-                  label={{ value: 'Round', position: 'insideBottom', offset: -2, fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                  tick={{ fill: 'rgba(242,228,196,0.6)', fontSize: 11 }}
+                  label={{ value: 'Round', position: 'insideBottom', offset: -2, fill: 'rgba(242,228,196,0.5)', fontSize: 10 }}
                 />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} />
+                <YAxis tick={{ fill: 'rgba(242,228,196,0.6)', fontSize: 11 }} />
                 <Tooltip contentStyle={chartTooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)' }} />
+                <Legend wrapperStyle={{ fontSize: '0.78rem', color: 'rgba(242,228,196,0.7)' }} />
                 {players.map((p, i) => (
                   <Line
                     key={p.id}
@@ -154,13 +154,13 @@ export default function GameSummaryScreen({ state, onNewGame }: Props) {
             <h2 className="section-label" style={{ marginBottom: '0.75rem' }}>Wins & Losses</h2>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-                <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} allowDecimals={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(242,228,196,0.1)" />
+                <XAxis dataKey="name" tick={{ fill: 'rgba(242,228,196,0.6)', fontSize: 11 }} />
+                <YAxis tick={{ fill: 'rgba(242,228,196,0.6)', fontSize: 11 }} allowDecimals={false} />
                 <Tooltip contentStyle={chartTooltipStyle} />
-                <Legend wrapperStyle={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)' }} />
-                <Bar dataKey="Wins" fill="#57c98a" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Losses" fill="#e0666c" radius={[2, 2, 0, 0]} />
+                <Legend wrapperStyle={{ fontSize: '0.78rem', color: 'rgba(242,228,196,0.7)' }} />
+                <Bar dataKey="Wins" fill="#6fbf5a" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Losses" fill="#e0685b" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

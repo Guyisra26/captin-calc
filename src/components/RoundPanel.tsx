@@ -30,7 +30,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               borderRadius: '12px',
               background: lastRound.winner === 'captain'
                 ? 'var(--accent-dim)'
-                : 'rgba(255,255,255,0.04)',
+                : 'rgba(242,228,196,0.05)',
               border: `1px solid ${lastRound.winner === 'captain' ? 'var(--accent-border)' : 'var(--border)'}`,
             }}
           >
@@ -47,7 +47,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
               <p>{lastRound.captainName} (CPT) vs {lastRound.representativeName} (REP)</p>
               <p>Stake: {lastRound.finalPerPlayerStake}/player · {lastRound.doublings} doublings</p>
               {lastRound.removals.length > 0 && <p>Removed: {lastRound.removals.join(', ')}</p>}
-              <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(242,228,196,0.08)' }}>
                 <p className="section-label" style={{ marginBottom: '0.25rem' }}>Changes</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {Object.entries(lastRound.balanceChanges).map(([pid, change]) => (
@@ -177,7 +177,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
             {captainName}
           </div>
         </div>
-        <span style={{ fontSize: '1rem', color: 'var(--text-faint)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>VS</span>
+        <span style={{ fontSize: '1rem', color: 'var(--text-dim)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>VS</span>
         <div className="text-center flex-1">
           <div className="section-label">Representative</div>
           <div
@@ -236,7 +236,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
                   fontWeight: isRep ? 600 : 400,
                   textDecoration: !isActive ? 'line-through' : 'none',
                   color: !isActive ? 'var(--color-removed)' : isRep ? 'var(--text)' : 'var(--text-dim)',
-                  background: !isActive ? 'transparent' : isRep ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
+                  background: !isActive ? 'transparent' : isRep ? 'rgba(242,228,196,0.1)' : 'rgba(242,228,196,0.05)',
                   border: isRep && isActive ? '1px solid var(--border-strong)' : '1px solid transparent',
                 }}
               >
@@ -251,7 +251,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
 
       {/* Next Doubling Turn */}
       <div className="flex items-center gap-2" style={{ fontSize: '0.9rem' }}>
-        <span style={{ color: 'var(--text-faint)' }}>Next doubling:</span>
+        <span style={{ color: 'var(--text-dim)' }}>Next doubling:</span>
         <span style={{
           fontWeight: 600,
           color: round.nextDoublingProposer === 'captain'
@@ -315,7 +315,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
                 className="w-full text-left px-4 py-2.5"
                 style={{
                   borderRadius: '10px',
-                  border: `1px solid ${selectedForRemoval.has(id) ? 'rgba(224,102,108,0.5)' : 'var(--border)'}`,
+                  border: `1px solid ${selectedForRemoval.has(id) ? 'rgba(224,104,91,0.5)' : 'var(--border)'}`,
                   background: selectedForRemoval.has(id) ? 'var(--negative-dim)' : 'var(--surface-2)',
                   color: selectedForRemoval.has(id) ? 'var(--color-negative)' : 'var(--text)',
                   fontSize: '1rem',
@@ -366,7 +366,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
 
           {/* Win type picker */}
           {showResolve && !resolveWinType && (
-            <div style={{ background: 'var(--positive-dim)', border: '1px solid rgba(87,201,138,0.35)', borderRadius: '12px', padding: '1rem' }}>
+            <div style={{ background: 'var(--positive-dim)', border: '1px solid rgba(111,191,90,0.35)', borderRadius: '12px', padding: '1rem' }}>
               <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.75rem' }}>
                 How did the round end?
               </p>
@@ -393,11 +393,11 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
 
           {/* Winner picker */}
           {showResolve && resolveWinType && (
-            <div style={{ background: 'var(--positive-dim)', border: '1px solid rgba(87,201,138,0.35)', borderRadius: '12px', padding: '1rem' }}>
+            <div style={{ background: 'var(--positive-dim)', border: '1px solid rgba(111,191,90,0.35)', borderRadius: '12px', padding: '1rem' }}>
               <p style={{ color: 'var(--color-positive)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center', marginBottom: '0.25rem' }}>
                 {resolveWinType === 'turkish' ? 'Turkish Mars (×3)' : resolveWinType === 'mars' ? 'Mars (×2)' : 'Normal'} — Who won?
               </p>
-              <p style={{ color: 'var(--text-faint)', fontSize: '0.8rem', textAlign: 'center', marginBottom: '0.75rem' }}>
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem', textAlign: 'center', marginBottom: '0.75rem' }}>
                 {round.perPlayerStake * (resolveWinType === 'turkish' ? 3 : resolveWinType === 'mars' ? 2 : 1) * activeCount} total pts
               </p>
               <div className="grid grid-cols-2 gap-3">

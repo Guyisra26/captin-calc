@@ -334,7 +334,7 @@ export default function SetupScreen({ onStartGame }: SetupProps) {
                 padding: '0.5rem 0.75rem',
                 borderRadius: '10px',
                 background: 'var(--surface-2)',
-                border: `1px solid ${isBalanceValid ? 'rgba(87,201,138,0.35)' : 'rgba(224,102,108,0.4)'}`,
+                border: `1px solid ${isBalanceValid ? 'rgba(111,191,90,0.35)' : 'rgba(224,104,91,0.4)'}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',

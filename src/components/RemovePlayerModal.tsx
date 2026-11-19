@@ -104,7 +104,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
             style={{
               padding: '0.75rem',
               background: 'var(--negative-dim)',
-              border: '1px solid rgba(224,102,108,0.4)',
+              border: '1px solid rgba(224,104,91,0.4)',
               borderRadius: '10px',
               color: 'var(--color-negative)',
               fontSize: '0.85rem',
@@ -166,7 +166,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                         style={{
                           padding: '0.2rem 0.6rem',
                           background: 'var(--negative-dim)',
-                          border: '1px solid rgba(224,102,108,0.4)',
+                          border: '1px solid rgba(224,104,91,0.4)',
                           borderRadius: '8px',
                           color: 'var(--color-negative)',
                           cursor: 'pointer',
@@ -193,7 +193,7 @@ export default function RemovePlayerModal({ players, disabledPlayerIds = [], hel
                         style={{
                           padding: '0.2rem 0.6rem',
                           background: 'var(--positive-dim)',
-                          border: '1px solid rgba(87,201,138,0.4)',
+                          border: '1px solid rgba(111,191,90,0.4)',
                           borderRadius: '8px',
                           color: 'var(--color-positive)',
                           cursor: 'pointer',

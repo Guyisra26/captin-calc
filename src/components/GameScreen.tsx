@@ -156,7 +156,6 @@ export default function GameScreen({
             </button>
           )}
         </div>
-
         {!isReadOnly && (
           <div ref={menuRef} className="relative">
             <button
@@ -272,6 +271,7 @@ export default function GameScreen({
           </div>
         )}
       </div>
+      <div className="board-points-strip" aria-hidden="true" />
 
       {mode === 'host' && roomCode && (
         <div

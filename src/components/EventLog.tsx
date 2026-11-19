@@ -19,8 +19,8 @@ export default function EventLog({ events, roundNumber }: EventLogProps) {
     switch (type) {
       case 'doubling': return { color: 'var(--accent-strong)', background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' };
       case 'pivot': return { color: 'var(--violet)', background: 'var(--violet-dim)', border: '1px solid var(--violet-border)' };
-      case 'removal': return { color: 'var(--color-negative)', background: 'var(--negative-dim)', border: '1px solid rgba(224,102,108,0.4)' };
-      case 'resolution': return { color: 'var(--color-positive)', background: 'var(--positive-dim)', border: '1px solid rgba(87,201,138,0.35)' };
+      case 'removal': return { color: 'var(--color-negative)', background: 'var(--negative-dim)', border: '1px solid rgba(224,104,91,0.4)' };
+      case 'resolution': return { color: 'var(--color-positive)', background: 'var(--positive-dim)', border: '1px solid rgba(111,191,90,0.35)' };
     }
   };
 

@@ -42,7 +42,7 @@ export default function RoundHistory({ history }: RoundHistoryProps) {
                     borderRadius: '6px',
                     fontWeight: 700,
                     letterSpacing: '0.05em',
-                    background: r.winner === 'captain' ? 'var(--accent-dim)' : 'rgba(255,255,255,0.06)',
+                    background: r.winner === 'captain' ? 'var(--accent-dim)' : 'rgba(242,228,196,0.07)',
                     color: r.winner === 'captain' ? 'var(--accent-strong)' : 'var(--text-dim)',
                     border: r.winner === 'captain' ? '1px solid var(--accent-border)' : '1px solid var(--border)',
                   }}
