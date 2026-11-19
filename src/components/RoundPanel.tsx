@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { GameState, GameAction, DoublingProposer } from '../types';
-import ActionWheel from './ActionWheel';
+import ActionBoard from './ActionBoard';
 
 interface RoundPanelProps {
   state: GameState;
@@ -143,7 +143,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
   const pivoterLabel = round.nextDoublingProposer === 'captain' ? `Captain (${captainName})` : 'Crew';
 
   return (
-    <div className="card space-y-4">
+    <div className="card card--felt space-y-4">
       {/* Round Header */}
       <div className="flex items-center justify-between">
         <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text)' }}>
@@ -349,7 +349,7 @@ export default function RoundPanel({ state, dispatch, isReadOnly = false }: Roun
       {!isReadOnly && (
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }} className="space-y-2">
           {!round.canRemove && !showResolve && (
-            <ActionWheel
+            <ActionBoard
               stake={round.perPlayerStake}
               captainName={captainName}
               canDoubleTeamB={round.nextDoublingProposer === 'teamB' || round.nextDoublingProposer === 'either'}
